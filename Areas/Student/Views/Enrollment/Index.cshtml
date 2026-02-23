@@ -1,0 +1,112 @@
+@model List<EnrollmentViewModel>
+@{
+    ViewData["Title"] = "Enrollment";
+    ViewData["UserRole"] = "Student Management";
+    var standards = ViewBag.Standards as List<string> ?? new List<string>();
+    var sections = ViewBag.Sections as List<string> ?? new List<string>();
+    var selectedStandard = ViewBag.SelectedStandard as int?;
+    var selectedSection = ViewBag.SelectedSection as string;
+}
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Student Enrollment</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage class and division enrollments.</p>
+    </div>
+    <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 w-fit">
+        <span class="material-symbols-outlined text-[20px]">how_to_reg</span> New Enrollment
+    </a>
+</div>
+
+<!-- Filter Bar -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Standard</label>
+            <select name="standard" class="rounded-lg border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-surface-dark-hover dark:text-white text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[120px]">
+                <option value="">All Standards</option>
+                @foreach (var std in standards)
+                {
+                    <option value="@std" selected="@(selectedStandard?.ToString() == std)">Std @std</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Division</label>
+            <select name="section" class="rounded-lg border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-surface-dark-hover dark:text-white text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[100px]">
+                <option value="">All Divisions</option>
+                @foreach (var sec in sections)
+                {
+                    <option value="@sec" selected="@(selectedSection == sec)">@sec</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary/90">Filter</button>
+        <a asp-action="Index" class="text-sm text-slate-500 hover:text-primary font-medium px-3 py-2">Clear</a>
+    </form>
+</div>
+
+<!-- Enrollments grouped by class -->
+@{
+    var grouped = Model
+        .GroupBy(e => e.ClassName)
+        .OrderBy(g => int.TryParse(g.Key?.Split('-')[0], out var n) ? n : 99)
+        .ThenBy(g => g.Key);
+}
+
+@if (Model.Any())
+{
+    @foreach (var group in grouped)
+    {
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold bg-primary/10 text-primary">
+                    <span class="material-symbols-outlined !text-[16px]">class</span>
+                    Std @group.Key
+                </span>
+                <span class="text-sm text-slate-400">@group.Count() students</span>
+            </div>
+            <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                <th class="px-6 py-3">Roll</th>
+                                <th class="px-6 py-3">Student</th>
+                                <th class="px-6 py-3">Year</th>
+                                <th class="px-6 py-3">Course</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            @foreach (var e in group)
+                            {
+                                <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                                    <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@e.RollNumber.ToString("D3")</td>
+                                    <td class="px-6 py-4 font-semibold dark:text-white">@e.StudentName</td>
+                                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@e.AcademicYearName</td>
+                                    <td class="px-6 py-4 text-sm text-slate-500">@(e.CourseName ?? "—")</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <form asp-action="Remove" method="post" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@e.Id" />
+                                            <button type="submit" onclick="return confirm('Remove enrollment?')"
+                                                    class="text-xs font-semibold text-red-600 hover:underline">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center text-slate-400 dark:text-slate-500">
+        <span class="material-symbols-outlined text-5xl mb-2">group_off</span>
+        <p>No enrollments found.</p>
+    </div>
+}

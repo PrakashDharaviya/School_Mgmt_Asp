@@ -1,0 +1,42 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="max-w-lg mx-auto bg-white p-6 rounded-xl shadow-sm">
+    <h2 class="text-xl font-bold mb-4">Create New User</h2>
+    <form asp-action="Create" method="post" class="space-y-4">
+        @Html.AntiForgeryToken()
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Full Name</label>
+            <input asp-for="FullName" class="w-full rounded-lg border px-3 py-2" />
+            <span asp-validation-for="FullName" class="text-red-600 text-xs"></span>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Email</label>
+            <input asp-for="Email" class="w-full rounded-lg border px-3 py-2" />
+            <span asp-validation-for="Email" class="text-red-600 text-xs"></span>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Role</label>
+            <select asp-for="Role" class="w-full rounded-lg border px-3 py-2">
+                <option value="Student">Student</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Admin">Admin</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Password</label>
+            <input asp-for="Password" type="password" class="w-full rounded-lg border px-3 py-2" />
+            <span asp-validation-for="Password" class="text-red-600 text-xs"></span>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Confirm Password</label>
+            <input asp-for="ConfirmPassword" type="password" class="w-full rounded-lg border px-3 py-2" />
+            <span asp-validation-for="ConfirmPassword" class="text-red-600 text-xs"></span>
+        </div>
+        <div class="text-right">
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg">Create User</button>
+        </div>
+    </form>
+</div>

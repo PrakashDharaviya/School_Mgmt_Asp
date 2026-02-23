@@ -1,0 +1,285 @@
+/* SchoolERP Custom Styles */
+:root {
+    --primary: #1e3fae;
+    --primary-light: #eef2ff;
+    --bg-light: #f6f6f8;
+    --bg-dark: #121520;
+    --surface-dark: #1e2130;
+    --surface-dark-hover: #262a3e;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+/* Active nav item */
+.nav-active {
+    background-color: rgba(30, 63, 174, 0.1);
+    color: #1e3fae;
+    font-weight: 600;
+}
+.dark .nav-active {
+    background-color: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+}
+
+/* Custom radio for login */
+.custom-radio:checked + span {
+    background-color: #1e3fae;
+    color: white;
+}
+
+/* Alerts */
+.alert-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+}
+.dark .alert-success {
+    background: rgba(6, 78, 59, 0.3);
+    border-color: rgba(52, 211, 153, 0.3);
+    color: #6ee7b7;
+}
+
+.alert-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+}
+.dark .alert-error {
+    background: rgba(127, 29, 29, 0.3);
+    border-color: rgba(248, 113, 113, 0.3);
+    color: #fca5a5;
+}
+
+/* Progress ring */
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+/* ===== DARK MODE: Global component overrides ===== */
+
+/* Cards, panels, tables */
+.dark .bg-white {
+    background-color: var(--surface-dark) !important;
+}
+
+/* Borders */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Text color adjustments */
+.dark .text-slate-900 { color: #f1f5f9 !important; }
+.dark .text-slate-800 { color: #e2e8f0 !important; }
+.dark .text-slate-700 { color: #cbd5e1 !important; }
+.dark .text-slate-600 { color: #94a3b8 !important; }
+.dark .text-slate-500 { color: #64748b !important; }
+.dark .text-slate-400 { color: #475569 !important; }
+
+/* Background adjustments for sub-elements */
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+    background-color: rgba(30, 33, 48, 0.7) !important;
+}
+
+/* Hover states */
+.dark .hover\:bg-slate-50:hover {
+    background-color: var(--surface-dark-hover) !important;
+}
+
+/* Primary backgrounds in dark mode */
+.dark .bg-primary\/10,
+.dark .bg-primary\/5 {
+    background-color: rgba(96, 165, 250, 0.12) !important;
+}
+.dark .text-primary {
+    color: #60a5fa !important;
+}
+
+/* Form elements */
+.dark select,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="search"],
+.dark textarea {
+    background-color: var(--surface-dark) !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+.dark select:focus,
+.dark input:focus,
+.dark textarea:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+}
+.dark select option {
+    background-color: var(--surface-dark);
+    color: #e2e8f0;
+}
+
+/* Badge / pill backgrounds */
+.dark .bg-emerald-100 { background-color: rgba(6, 78, 59, 0.35) !important; }
+.dark .bg-emerald-50 { background-color: rgba(6, 78, 59, 0.2) !important; }
+.dark .bg-red-100 { background-color: rgba(127, 29, 29, 0.35) !important; }
+.dark .bg-red-50 { background-color: rgba(127, 29, 29, 0.2) !important; }
+.dark .bg-amber-100 { background-color: rgba(120, 53, 15, 0.35) !important; }
+.dark .bg-amber-50 { background-color: rgba(120, 53, 15, 0.2) !important; }
+.dark .bg-blue-50 { background-color: rgba(30, 58, 138, 0.2) !important; }
+.dark .bg-blue-100 { background-color: rgba(30, 58, 138, 0.35) !important; }
+.dark .bg-purple-50 { background-color: rgba(88, 28, 135, 0.2) !important; }
+.dark .bg-purple-100 { background-color: rgba(88, 28, 135, 0.35) !important; }
+.dark .bg-indigo-100 { background-color: rgba(49, 46, 129, 0.35) !important; }
+.dark .bg-teal-50 { background-color: rgba(19, 78, 74, 0.2) !important; }
+.dark .bg-orange-100 { background-color: rgba(124, 45, 18, 0.35) !important; }
+.dark .bg-green-100 { background-color: rgba(6, 78, 59, 0.35) !important; }
+
+/* Text colors for colored badges */
+.dark .text-emerald-700 { color: #6ee7b7 !important; }
+.dark .text-emerald-600 { color: #34d399 !important; }
+.dark .text-red-700 { color: #fca5a5 !important; }
+.dark .text-red-600 { color: #f87171 !important; }
+.dark .text-amber-700 { color: #fcd34d !important; }
+.dark .text-amber-600 { color: #fbbf24 !important; }
+.dark .text-blue-600 { color: #60a5fa !important; }
+.dark .text-blue-500 { color: #3b82f6 !important; }
+.dark .text-purple-600 { color: #c084fc !important; }
+.dark .text-indigo-600 { color: #818cf8 !important; }
+.dark .text-teal-600 { color: #2dd4bf !important; }
+.dark .text-orange-600 { color: #fb923c !important; }
+.dark .text-green-600 { color: #34d399 !important; }
+
+/* Shadow adjustments */
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+.dark .shadow-primary\/20,
+.dark .shadow-primary\/30 {
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Table row hover */
+.dark .hover\:bg-slate-50\/50:hover {
+    background-color: rgba(30, 33, 48, 0.5) !important;
+}
+.dark tr:hover {
+    background-color: rgba(30, 33, 48, 0.5);
+}
+
+/* Ring styles for cards */
+.dark .ring-primary {
+    --tw-ring-color: #3b82f6 !important;
+}
+.dark .ring-offset-background-light {
+    --tw-ring-offset-color: var(--bg-dark) !important;
+}
+
+/* Modal backdrop */
+.dark .bg-black\/50 {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Gradient text/bg in dark mode */
+.dark .bg-gradient-to-br.from-primary {
+    background: linear-gradient(to bottom right, #1e40af, #1d4ed8) !important;
+}
+.dark .bg-gradient-to-t.from-primary\/80 {
+    background: linear-gradient(to top, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.3)) !important;
+}
+
+/* Progress bars */
+.dark .bg-slate-200 {
+    background-color: #334155 !important;
+}
+
+/* Dashed borders */
+.dark .border-dashed {
+    border-color: #475569 !important;
+}
+
+/* Checkbox in dark mode */
+.dark input[type="checkbox"] {
+    background-color: var(--surface-dark) !important;
+    border-color: #475569 !important;
+}
+.dark input[type="checkbox"]:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Toggle switch in dark mode */
+.dark .peer-checked\:bg-primary {
+    background-color: #3b82f6 !important;
+}
+
+/* SVG circles in dark mode */
+.dark .text-slate-100 circle {
+    stroke: #334155;
+}
+
+/* ===== RESPONSIVE HELPERS ===== */
+
+/* Extra small breakpoint for logo text */
+@media (min-width: 400px) {
+    .xs\:block { display: block !important; }
+}
+
+/* Mobile-friendly table */
+@media (max-width: 639px) {
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        font-size: 0.8125rem;
+    }
+    table th, table td {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+    }
+}
+
+/* Sidebar transition for mobile */
+#sidebar {
+    will-change: transform;
+}
+
+/* Sidebar open state */
+#sidebar.sidebar-open {
+    transform: translateX(0) !important;
+}
+
+/* Backdrop visible state */
+#sidebarBackdrop.backdrop-visible {
+    display: block !important;
+    opacity: 1 !important;
+}

@@ -1,0 +1,135 @@
+@model LoginViewModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | School ERP System</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#1e3fae", "background-light": "#f6f6f8", "background-dark": "#121520", "surface-dark": "#1e2130" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    boxShadow: { 'soft': '0 8px 24px rgba(0,0,0,0.08)' }
+                },
+            },
+        }
+    </script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-300">
+    <!-- Theme Toggle (top-right) -->
+    <button id="loginThemeToggle" type="button" class="fixed top-4 right-4 flex items-center justify-center size-10 rounded-xl bg-white dark:bg-surface-dark text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-200 dark:border-slate-700 z-50" title="Toggle theme">
+        <span class="material-symbols-outlined !text-[20px] dark:hidden">dark_mode</span>
+        <span class="material-symbols-outlined !text-[20px] hidden dark:inline">light_mode</span>
+    </button>
+
+    <div class="mb-8 flex flex-col items-center gap-2">
+        <div class="bg-primary dark:bg-blue-600 text-white p-3 rounded-xl shadow-lg">
+            <span class="material-symbols-outlined text-3xl">school</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">School ERP</h1>
+    </div>
+
+    <main class="w-full max-w-[440px] bg-white dark:bg-surface-dark rounded-xl shadow-soft dark:shadow-none p-6 sm:p-8 border border-slate-100 dark:border-slate-700">
+        <div class="text-center mb-8">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Welcome Back</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Please enter your details to sign in</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-300 p-3 rounded-lg mb-4 text-sm">@TempData["Success"]</div>
+        }
+
+        <form asp-action="Login" asp-controller="Account" method="post" class="space-y-5">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-red-600 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/30 p-3 rounded-lg"></div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Username or Email</label>
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-slate-500 text-[20px]">alternate_email</span>
+                    <input asp-for="Email" class="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 dark:focus:ring-blue-500/30 focus:border-primary dark:focus:border-blue-500 transition-all outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="e.g. admin@schoolerp.com" />
+                </div>
+                <span asp-validation-for="Email" class="text-red-500 dark:text-red-400 text-xs"></span>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-slate-700 dark:text-slate-300 ml-1">Password</label>
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-4 text-slate-400 dark:text-slate-500 text-[20px]">lock</span>
+                    <input asp-for="Password" type="password" id="passwordField" class="w-full pl-12 pr-12 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20 dark:focus:ring-blue-500/30 focus:border-primary dark:focus:border-blue-500 transition-all outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Enter your password" />
+                    <button type="button" data-toggle-password="#passwordField" class="absolute right-4 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-blue-400 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-red-500 dark:text-red-400 text-xs"></span>
+            </div>
+
+            <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                    <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary dark:text-blue-500 focus:ring-primary dark:focus:ring-blue-500 dark:bg-slate-800" />
+                    <span class="text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white">Remember me</span>
+                </label>
+                <a class="font-semibold text-primary dark:text-blue-400 hover:underline underline-offset-4" href="#">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="w-full bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 dark:shadow-blue-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                Sign In
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+                If you do not have an account, please contact the school administrator.
+            </p>
+        </div>
+    </main>
+
+    <div class="mt-6 text-center text-xs text-slate-400 dark:text-slate-500">
+        <p>Default: admin@schoolerp.com / Admin@123</p>
+    </div>
+
+    <script>
+        // Toggle password
+        document.querySelectorAll('[data-toggle-password]').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = document.querySelector(this.getAttribute('data-toggle-password'));
+                if (input) {
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    if (icon) icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+                }
+            });
+        });
+        // Theme toggle on login page
+        var loginToggle = document.getElementById('loginThemeToggle');
+        if (loginToggle) {
+            loginToggle.addEventListener('click', function () {
+                var html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

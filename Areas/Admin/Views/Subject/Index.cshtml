@@ -1,0 +1,80 @@
+@model IEnumerable<SchoolEduERP.Models.Domain.Subject>
+@{
+    ViewData["Title"] = "Subjects";
+    ViewData["UserRole"] = "Admin";
+    var grouped = Model.OrderBy(s => s.Standard).ThenBy(s => s.Name).GroupBy(s => s.Standard);
+}
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Subject Management</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage subjects assigned to each standard.</p>
+    </div>
+    <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 w-fit">
+        <span class="material-symbols-outlined text-[20px]">add</span> Add Subject
+    </a>
+</div>
+
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3">Standard</th>
+                    <th class="px-6 py-3">Subject Name</th>
+                    <th class="px-6 py-3">Code</th>
+                    <th class="px-6 py-3">Teacher</th>
+                    <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @foreach (var s in Model.OrderBy(x => x.Standard).ThenBy(x => x.Name))
+                {
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded">Std @s.Standard</span>
+                        </td>
+                        <td class="px-6 py-4 font-semibold dark:text-slate-100">@s.Name</td>
+                        <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@(s.Code ?? "-")</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                            @if (s.Teacher != null)
+                            {
+                                <span class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-slate-400">person</span>
+                                    @s.Teacher.FirstName @s.Teacher.LastName
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400">Unassigned</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@s.Id"
+                                   class="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span> Edit
+                                </a>
+                                <form asp-action="Delete" method="post" class="inline"
+                                      onsubmit="return confirm('Delete subject &quot;@s.Name&quot;?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button type="submit"
+                                            class="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                                        <span class="material-symbols-outlined text-[16px]">delete</span> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">No subjects found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

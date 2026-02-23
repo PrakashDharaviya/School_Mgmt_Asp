@@ -1,0 +1,32 @@
+@model SchoolEduERP.Models.Domain.Subject
+@{
+    ViewData["Title"] = "Edit Subject";
+}
+
+<form asp-action="Edit" method="post" class="max-w-xl bg-white p-6 rounded-lg shadow">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Standard</label>
+        <input asp-for="Standard" class="w-full rounded border px-3 py-2" />
+        <span asp-validation-for="Standard" class="text-red-600 text-xs"></span>
+    </div>
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Name</label>
+        <input asp-for="Name" class="w-full rounded border px-3 py-2" />
+        <span asp-validation-for="Name" class="text-red-600 text-xs"></span>
+    </div>
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Teacher</label>
+        <select asp-for="TeacherId" class="w-full rounded border px-3 py-2">
+            <option value="">-- Select Teacher --</option>
+            @foreach (var t in (IEnumerable<SchoolEduERP.Models.Domain.Teacher>)ViewBag.Teachers)
+            {
+                <option value="@t.Id" selected="@((Model.TeacherId==t.Id))">@t.FirstName @t.LastName</option>
+            }
+        </select>
+    </div>
+    <div class="text-right">
+        <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Save</button>
+    </div>
+</form>

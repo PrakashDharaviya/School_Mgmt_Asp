@@ -1,0 +1,142 @@
+@model SchoolEduERP.Areas.Admin.Models.StudentProfileViewModel
+@{ ViewData["Title"] = "Student Profile"; ViewData["UserRole"] = "Student"; }
+
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div>
+        <nav class="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <a asp-controller="Dashboard" asp-action="Index" asp-area="" class="hover:text-primary">Home</a>
+            <span class="material-symbols-outlined text-xs">chevron_right</span>
+            <span class="text-slate-900 font-medium">Profile Details</span>
+        </nav>
+        <h1 class="text-3xl font-bold tracking-tight dark:text-white">Student Profile</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <a asp-controller="ReportDownload" asp-action="StudentReportCard" asp-route-studentId="@Model.Id" asp-area=""
+           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 font-semibold text-sm dark:text-white hover:bg-slate-50 dark:hover:bg-surface-dark-hover transition-colors shadow-sm">
+            <span class="material-symbols-outlined text-lg">picture_as_pdf</span> Download Report Card
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Left Sidebar -->
+    <aside class="lg:col-span-4 flex flex-col gap-6">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 text-center">
+            <div class="relative inline-block mb-6">
+                <div class="w-40 h-40 rounded-2xl bg-primary/10 border-4 border-slate-50 shadow-md flex items-center justify-center">
+                    <span class="text-6xl font-bold text-primary">@Model.FullName[0]</span>
+                </div>
+                <span class="absolute bottom-2 right-2 flex h-4 w-4">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-white"></span>
+                </span>
+            </div>
+            <h2 class="text-2xl font-bold mb-1 dark:text-white">@Model.FullName</h2>
+            <p class="text-primary font-semibold text-sm bg-primary/10 inline-block px-3 py-1 rounded-full mb-6">Roll No: @Model.RollNumber</p>
+<div class="space-y-4 text-left border-t border-slate-100 dark:border-slate-700 pt-6">
+                <div class="flex items-center justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Class &amp; Section</span><span class="font-semibold dark:text-white">@Model.ClassName</span></div>
+                <div class="flex items-center justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Date of Birth</span><span class="font-semibold dark:text-white">@Model.DateOfBirth.ToString("dd-MMM-yyyy")</span></div>
+                <div class="flex items-center justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Gender</span><span class="font-semibold dark:text-white">@(Model.Gender ?? "N/A")</span></div>
+                <div class="flex items-center justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Admission No</span><span class="font-semibold dark:text-white">@Model.AdmissionNumber</span></div>
+            </div>
+        </div>
+
+        <!-- GPA Card -->
+        <div class="bg-primary rounded-xl p-6 text-white shadow-xl shadow-primary/20 relative overflow-hidden">
+            <div class="relative z-10">
+                <p class="text-sm font-medium opacity-80 mb-1">Current Academic Performance</p>
+                <h3 class="text-3xl font-bold mb-4">@Model.Gpa.ToString("F2") <span class="text-base font-normal opacity-70">GPA</span></h3>
+                <div class="flex items-center gap-2 bg-white/20 rounded-lg p-3 backdrop-blur-sm">
+                    <span class="material-symbols-outlined text-white">event_available</span>
+                    <span class="text-sm font-medium">Attendance: @Model.AttendancePercentage%</span>
+                </div>
+            </div>
+            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+        </div>
+
+        <!-- Fee Summary -->
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2 dark:text-white">
+                <span class="material-symbols-outlined text-amber-500">account_balance_wallet</span> Fee Summary
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Total Due</span><span class="font-bold dark:text-white">&#x20B9;@Model.TotalFeeDue.ToString("N0")</span></div>
+                <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400 text-sm">Total Paid</span><span class="font-bold text-emerald-600">&#x20B9;@Model.TotalFeePaid.ToString("N0")</span></div>
+                <div class="flex justify-between border-t dark:border-slate-700 pt-3"><span class="text-slate-500 dark:text-slate-400 text-sm">Balance</span><span class="font-bold @(Model.TotalFeeDue - Model.TotalFeePaid > 0 ? "text-red-600" : "text-emerald-600")">&#x20B9;@((Model.TotalFeeDue - Model.TotalFeePaid).ToString("N0"))</span></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-8 space-y-8">
+        <!-- Academic Details -->
+        <section class="bg-white dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><span class="material-symbols-outlined">auto_stories</span></div>
+                <h3 class="text-xl font-bold dark:text-white">Academic Details</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-surface-dark-hover"><p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Session</p><span class="font-bold dark:text-white">@Model.AcademicYear</span></div>
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-surface-dark-hover"><p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Class</p><span class="font-bold dark:text-white">@Model.ClassName</span></div>
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-surface-dark-hover"><p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Attendance</p><span class="font-bold dark:text-white">@Model.AttendancePercentage%</span></div>
+            </div>
+        </section>
+
+        <!-- Contact Info -->
+        <section class="bg-white dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"><span class="material-symbols-outlined">contact_page</span></div>
+                <h3 class="text-xl font-bold dark:text-white">Contact Information</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300"><span class="material-symbols-outlined">call</span></div>
+                        <div><p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Mobile Number</p><p class="font-bold dark:text-white">@(Model.Phone ?? "N/A")</p></div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300"><span class="material-symbols-outlined">family_restroom</span></div>
+                        <div><p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Parent / Guardian</p><p class="font-bold dark:text-white">@(Model.GuardianName ?? "N/A")</p></div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300"><span class="material-symbols-outlined">mail</span></div>
+                        <div><p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Email</p><p class="font-bold dark:text-white">@(Model.Email ?? "N/A")</p></div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300"><span class="material-symbols-outlined">home</span></div>
+                        <div><p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Address</p><p class="font-bold dark:text-white">@(Model.Address ?? "N/A")</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Marks Table -->
+        @if (Model.Marks.Any())
+        {
+            <section class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-100 dark:border-slate-700"><h3 class="font-bold text-lg dark:text-white">Exam Results</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead><tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <th class="px-6 py-3">Subject</th><th class="px-6 py-3">Exam</th><th class="px-6 py-3">Marks</th><th class="px-6 py-3">Grade</th><th class="px-6 py-3">GPA</th>
+                        </tr></thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            @foreach (var m in Model.Marks)
+                            {
+                                <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50">
+                                    <td class="px-6 py-4 font-semibold dark:text-white">@m.SubjectName</td>
+                                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@m.ExamName</td>
+                                    <td class="px-6 py-4 text-sm dark:text-white">@m.MarksObtained / @m.TotalMarks</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">@m.Grade</span></td>
+                                    <td class="px-6 py-4 font-bold text-primary">@m.GradePoint.ToString("F1")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </div>
+</div>

@@ -1,0 +1,78 @@
+@model DashboardViewModel
+@{ ViewData["Title"] = "Teacher Dashboard"; ViewData["UserRole"] = "Teacher"; }
+
+<header class="flex flex-wrap justify-between items-end gap-4 mb-10">
+    <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white">Welcome back, @Model.UserName </h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 font-medium">@DateTime.Today.ToString("dddd, MMMM dd, yyyy")</p>
+    </div>
+    <div class="flex gap-3">
+        <a asp-area="Teacher" asp-controller="Exam" asp-action="Create" class="bg-primary dark:bg-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 dark:hover:bg-blue-500 transition-all text-sm sm:text-base">
+            <span class="material-symbols-outlined">add</span> <span class="hidden sm:inline">Create</span> Exam
+        </a>
+    </div>
+</header>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-slate-50 dark:border-slate-700/50 flex items-center gap-4">
+        <div class="bg-green-100 p-3 rounded-lg text-green-600">
+            <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <div>
+            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Overall Attendance</p>
+            <p class="text-xl font-black dark:text-white">@Model.AttendancePercentage%</p>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-slate-50 dark:border-slate-700/50 flex items-center gap-4">
+        <div class="bg-blue-100 p-3 rounded-lg text-blue-600">
+            <span class="material-symbols-outlined">groups</span>
+        </div>
+        <div>
+            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Students</p>
+            <p class="text-xl font-black dark:text-white">@Model.TotalStudents</p>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-slate-50 dark:border-slate-700/50 flex items-center gap-4">
+        <div class="bg-purple-100 p-3 rounded-lg text-purple-600">
+            <span class="material-symbols-outlined">calendar_today</span>
+        </div>
+        <div>
+            <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Academic Year</p>
+            <p class="text-xl font-black dark:text-white">@Model.ActiveAcademicYear</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold tracking-tight">Quick Actions</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a asp-area="Teacher" asp-controller="Attendance" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-primary flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded w-fit">Attendance</span>
+                <div>
+                    <h3 class="font-bold text-lg dark:text-white">Mark Attendance</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">how_to_reg</span> Class-wise</p>
+                </div>
+                <div class="pt-3 border-t border-slate-50 dark:border-slate-700"><p class="text-xs text-slate-400">Daily task</p></div>
+            </a>
+            <a asp-area="Teacher" asp-controller="Marks" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-purple-500 flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded w-fit">Marks</span>
+                <div>
+                    <h3 class="font-bold text-lg dark:text-white">Enter Marks</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">grade</span> With GPA</p>
+                </div>
+                <div class="pt-3 border-t border-slate-50 dark:border-slate-700"><p class="text-xs text-slate-400">Auto GPA calculation</p></div>
+            </a>
+            <a asp-area="Teacher" asp-controller="Exam" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-blue-400 flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded w-fit">Exams</span>
+                <div>
+                    <h3 class="font-bold text-lg dark:text-white">Manage Exams</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">assignment</span> Schedules</p>
+                </div>
+                <div class="pt-3 border-t border-slate-50 dark:border-slate-700"><p class="text-xs text-slate-400">Create & schedule</p></div>
+            </a>
+        </div>
+    </div>
+</div>

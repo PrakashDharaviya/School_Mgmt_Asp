@@ -1,0 +1,87 @@
+@model List<SalaryViewModel>
+@{ ViewData["Title"] = "Salary Management"; ViewData["UserRole"] = "Admin"; }
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Salary Management</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage teacher salary records and payouts.</p>
+    </div>
+    <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 w-fit">
+        <span class="material-symbols-outlined text-[20px]">add</span> Add Salary Record
+    </a>
+</div>
+
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3">Teacher</th>
+                    <th class="px-6 py-3">Employee ID</th>
+                    <th class="px-6 py-3">Month</th>
+                    <th class="px-6 py-3">Basic</th>
+                    <th class="px-6 py-3">Allowances</th>
+                    <th class="px-6 py-3">Deductions</th>
+                    <th class="px-6 py-3">Net Salary</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @if (Model.Any())
+                {
+                    @foreach (var s in Model)
+                    {
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold">@s.TeacherName</td>
+                            <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@s.EmployeeId</td>
+                            <td class="px-6 py-4 text-sm">@s.Month</td>
+                            <td class="px-6 py-4 text-sm">&#x20B9;@s.BasicSalary.ToString("N0")</td>
+                            <td class="px-6 py-4 text-sm text-emerald-600">+&#x20B9;@s.Allowances.ToString("N0")</td>
+                            <td class="px-6 py-4 text-sm text-red-600">-&#x20B9;@s.Deductions.ToString("N0")</td>
+                            <td class="px-6 py-4 font-bold">&#x20B9;@s.NetSalary.ToString("N0")</td>
+                            <td class="px-6 py-4">
+                                @if (s.Status == "Paid")
+                                {
+                                    <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">Paid</span>
+                                }
+                                else
+                                {
+                                    <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">Pending</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if (s.Status == "Pending")
+                                    {
+                                        <form asp-action="MarkAsPaid" method="post" class="inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@s.Id" />
+                                            <button type="submit" class="text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                                <span class="material-symbols-outlined !text-[16px]">check</span> Pay
+                                            </button>
+                                        </form>
+                                    }
+                                    <a asp-action="Edit" asp-route-id="@s.Id" class="text-primary hover:text-primary/80">
+                                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                                    </a>
+                                    <form asp-action="Delete" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@s.Id" />
+                                        <button type="submit" class="text-red-400 hover:text-red-600" onclick="return confirm('Delete this salary record?')">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="9" class="px-6 py-12 text-center text-slate-400">No salary records found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

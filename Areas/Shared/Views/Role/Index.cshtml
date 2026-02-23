@@ -1,0 +1,117 @@
+@using SchoolEduERP.Areas.Shared.Controllers
+@model List<UserRoleViewModel>
+@{
+    ViewData["Title"] = "User & Role Management";
+    ViewData["UserRole"] = "Super Admin";
+    var roles = ViewBag.Roles as List<Microsoft.AspNetCore.Identity.IdentityRole> ?? new List<Microsoft.AspNetCore.Identity.IdentityRole>();
+    int adminCount = ViewBag.AdminCount ?? 0;
+    int teacherCount = ViewBag.TeacherCount ?? 0;
+    int studentCount = ViewBag.StudentCount ?? 0;
+}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">User Management</h1>
+        <p class="text-slate-500 mt-2 font-medium">Manage access, roles, and permissions across the organization.</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <a asp-action="Create" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary/90">+ New User</a>
+    </div>
+</div>
+
+<!-- Role Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div class="bg-white p-6 rounded-[20px] shadow-sm flex items-center justify-between border border-slate-100 hover:-translate-y-1 transition-transform duration-300">
+        <div>
+            <p class="text-slate-500 font-medium text-sm mb-1">Total Admins</p>
+            <h3 class="text-4xl font-bold text-slate-900">@adminCount</h3>
+        </div>
+        <div class="size-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-3xl">admin_panel_settings</span>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-[20px] shadow-sm flex items-center justify-between border border-slate-100 hover:-translate-y-1 transition-transform duration-300">
+        <div>
+            <p class="text-slate-500 font-medium text-sm mb-1">Total Teachers</p>
+            <h3 class="text-4xl font-bold text-slate-900">@teacherCount</h3>
+        </div>
+        <div class="size-14 rounded-2xl bg-blue-50 text-primary flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-3xl">school</span>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-[20px] shadow-sm flex items-center justify-between border border-slate-100 hover:-translate-y-1 transition-transform duration-300">
+        <div>
+            <p class="text-slate-500 font-medium text-sm mb-1">Total Students</p>
+            <h3 class="text-4xl font-bold text-slate-900">@studentCount</h3>
+        </div>
+        <div class="size-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-3xl">backpack</span>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <h3 class="font-bold text-lg text-slate-800">All Users</h3>
+        <span class="text-sm text-slate-500">@Model.Count total</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-xs font-semibold tracking-wide text-slate-500 uppercase border-b border-slate-100 bg-white">
+                    <th class="px-6 py-4">User</th>
+                    <th class="px-6 py-4">Email</th>
+                    <th class="px-6 py-4">Current Role</th>
+                    <th class="px-6 py-4 text-right">Change Role</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var user in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                                    @user.FullName[0]
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm text-slate-900">@user.FullName</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-500">@user.Email</td>
+                        <td class="px-6 py-4">
+                            @{
+                                var badgeColor = user.RoleType switch
+                                {
+                                    "Admin" => "bg-purple-100 text-purple-700",
+                                    "Teacher" => "bg-blue-100 text-blue-700",
+                                    _ => "bg-emerald-100 text-emerald-700"
+                                };
+                            }
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold @badgeColor">
+                                @user.RoleType
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <form asp-action="AssignRole" method="post" class="inline-flex items-center gap-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="userId" value="@user.UserId" />
+                                <select name="role" class="rounded-lg border-slate-200 bg-slate-50 text-sm py-1.5 px-3 focus:ring-primary focus:border-primary">
+                                    @foreach (var role in roles)
+                                    {
+                                        <option value="@role.Name" selected="@(user.Roles.Contains(role.Name!))">@role.Name</option>
+                                    }
+                                </select>
+                                <button type="submit" class="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+                                    Update
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

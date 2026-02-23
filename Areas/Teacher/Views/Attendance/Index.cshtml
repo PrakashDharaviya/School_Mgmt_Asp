@@ -1,0 +1,202 @@
+@model AttendanceViewModel
+@{ ViewData["Title"] = "Mark Attendance"; ViewData["UserRole"] = "Teacher"; }
+
+<div class="mb-8">
+    <nav class="flex mb-2 text-sm text-slate-500">
+        <ol class="flex items-center space-x-2">
+            <li><a asp-controller="Dashboard" asp-action="Index" asp-area="" class="hover:text-primary">Home</a></li>
+            <li><span class="material-symbols-outlined text-sm">chevron_right</span></li>
+            <li class="text-primary font-medium">Mark Attendance</li>
+        </ol>
+    </nav>
+    <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white">Mark Attendance</h2>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-8 space-y-6">
+        <!-- Selection Bar -->
+        <form method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Class</label>
+                <select name="classSectionId" onchange="this.form.submit()" class="w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-medium focus:ring-primary focus:border-primary py-2.5">
+                    @foreach (var cs in Model.ClassSections)
+                    {
+                        <option value="@cs.Id" selected="@(cs.Id == Model.ClassSectionId)">@cs.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Date</label>
+                <input name="date" type="date" value="@Model.Date.ToString("yyyy-MM-dd")" onchange="this.form.submit()" class="w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-medium focus:ring-primary focus:border-primary py-2.5" />
+            </div>
+        </form>
+
+        <!-- Student List -->
+        <form asp-action="Save" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ClassSectionId" />
+            <input type="hidden" name="Date" value="@Model.Date.ToString("yyyy-MM-dd")" />
+
+            <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-lg dark:text-white">Student List <span class="text-sm font-normal text-slate-500 dark:text-slate-400 ml-2">(@Model.TotalStudents Total)</span></h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                <th class="px-6 py-3">Roll No</th>
+                                <th class="px-6 py-3">Student Name</th>
+                                <th class="px-6 py-3 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                            @for (int i = 0; i < Model.Students.Count; i++)
+                            {
+                                <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                                    <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">
+                                        @Model.Students[i].RollNumber.ToString("D3")
+                                        <input type="hidden" name="Students[@i].StudentId" value="@Model.Students[i].StudentId" />
+                                        <input type="hidden" name="Students[@i].RollNumber" value="@Model.Students[i].RollNumber" />
+                                        <input type="hidden" name="Students[@i].StudentName" value="@Model.Students[i].StudentName" />
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">@Model.Students[i].StudentName[0]</div>
+                                            <span class="font-semibold @(!Model.Students[i].IsPresent ? "text-slate-400 dark:text-slate-600 line-through" : "dark:text-slate-100")">@Model.Students[i].StudentName</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <label class="inline-flex items-center cursor-pointer">
+                                            <input type="hidden" name="Students[@i].IsPresent" value="false" />
+                                            <input type="checkbox" name="Students[@i].IsPresent" value="true" @(Model.Students[i].IsPresent ? "checked" : "") class="sr-only peer attendance-toggle" />
+                                            <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                            <span class="ms-3 text-sm font-medium attendance-label text-slate-900 dark:text-slate-100 peer-checked:text-emerald-600">Present</span>
+                                        </label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (!Model.Students.Any())
+                {
+                    <div class="p-12 text-center text-slate-400">No students enrolled in this class for the active academic year.</div>
+                }
+            </div>
+
+            @if (Model.Students.Any())
+            {
+                <div class="mt-6 flex flex-wrap gap-4 items-center justify-between">
+                    <button type="button" id="bulkPresentAll" class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-emerald-700 bg-emerald-100 hover:bg-emerald-200 font-semibold text-sm transition-colors">
+                        <span class="material-symbols-outlined text-sm">done_all</span> Bulk Present All
+                    </button>
+                    <button type="submit" class="flex items-center gap-2 px-8 py-2.5 rounded-lg bg-primary text-white font-bold text-sm shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+                        <span class="material-symbols-outlined text-sm">save</span> Save Attendance
+                    </button>
+                </div>
+            }
+        </form>
+    </div>
+
+    <!-- Right Side: Live Stats -->
+    <div class="lg:col-span-4 space-y-6">
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 sticky top-24">
+            <h3 class="font-bold text-lg dark:text-white mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">analytics</span> Live Statistics
+            </h3>
+            <div class="space-y-8">
+                <div class="flex items-center gap-6">
+                    <div class="relative h-20 w-20 flex items-center justify-center">
+                        @{ var pctPresent = Model.TotalStudents > 0 ? Math.Round((double)Model.PresentCount / Model.TotalStudents * 100) : 0; }
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle class="text-slate-100 dark:text-slate-700" cx="40" cy="40" r="34" fill="transparent" stroke="currentColor" stroke-width="6"></circle>
+                            <circle id="presentCircle" class="text-emerald-500" cx="40" cy="40" r="34" fill="transparent" stroke="currentColor" stroke-dasharray="213.6" stroke-dashoffset="@(213.6 * (1 - pctPresent / 100.0))" stroke-width="6"></circle>
+                        </svg>
+                        <span id="presentPct" class="absolute font-bold text-emerald-600">@pctPresent%</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Present</p>
+                        <h4 id="presentCount" class="text-2xl font-black text-slate-900 dark:text-white">@Model.PresentCount / @Model.TotalStudents</h4>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="relative h-20 w-20 flex items-center justify-center">
+                        @{ var pctAbsent = Model.TotalStudents > 0 ? Math.Round((double)Model.AbsentCount / Model.TotalStudents * 100) : 0; }
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle class="text-slate-100 dark:text-slate-700" cx="40" cy="40" r="34" fill="transparent" stroke="currentColor" stroke-width="6"></circle>
+                            <circle id="absentCircle" class="text-rose-500" cx="40" cy="40" r="34" fill="transparent" stroke="currentColor" stroke-dasharray="213.6" stroke-dashoffset="@(213.6 * (1 - pctAbsent / 100.0))" stroke-width="6"></circle>
+                        </svg>
+                        <span id="absentPct" class="absolute font-bold text-rose-600">@pctAbsent%</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Absent</p>
+                        <h4 id="absentCount" class="text-2xl font-black text-slate-900 dark:text-white">@Model.AbsentCount / @Model.TotalStudents</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const total = @Model.TotalStudents;
+
+    function updateStats() {
+        const checked = document.querySelectorAll('.attendance-toggle:checked').length;
+        const absent = total - checked;
+        const pctPresent = total > 0 ? Math.round(checked / total * 100) : 0;
+        const pctAbsent = total > 0 ? Math.round(absent / total * 100) : 0;
+        const circumference = 213.6;
+
+        // Present circle
+        document.getElementById('presentCount').textContent = checked + ' / ' + total;
+        document.getElementById('presentPct').textContent = pctPresent + '%';
+        document.getElementById('presentCircle').setAttribute('stroke-dashoffset', circumference * (1 - pctPresent / 100));
+
+        // Absent circle
+        document.getElementById('absentCount').textContent = absent + ' / ' + total;
+        document.getElementById('absentPct').textContent = pctAbsent + '%';
+        document.getElementById('absentCircle').setAttribute('stroke-dashoffset', circumference * (1 - pctAbsent / 100));
+    }
+
+    // Fix hidden+checkbox double-value binding: disable hidden when checkbox is checked
+    document.querySelectorAll('.attendance-toggle').forEach(function (cb) {
+        var hidden = cb.previousElementSibling; // the hidden input just before the checkbox
+        function syncHidden() {
+            hidden.disabled = cb.checked;
+        }
+        syncHidden();
+        cb.addEventListener('change', function () {
+            syncHidden();
+            // update student name style
+            var row = cb.closest('tr');
+            var nameSpan = row.querySelector('td:nth-child(2) span.font-semibold');
+            if (nameSpan) {
+                if (cb.checked) {
+                    nameSpan.classList.remove('text-slate-400', 'dark:text-slate-600', 'line-through');
+                    nameSpan.classList.add('dark:text-slate-100');
+                } else {
+                    nameSpan.classList.add('text-slate-400', 'dark:text-slate-600', 'line-through');
+                    nameSpan.classList.remove('dark:text-slate-100');
+                }
+            }
+            updateStats();
+        });
+    });
+
+    // Bulk Present All
+    document.getElementById('bulkPresentAll').addEventListener('click', function () {
+        document.querySelectorAll('.attendance-toggle').forEach(function (cb) {
+            cb.checked = true;
+            cb.previousElementSibling.disabled = true;
+            var row = cb.closest('tr');
+            var nameSpan = row.querySelector('td:nth-child(2) span.font-semibold');
+            if (nameSpan) {
+                nameSpan.classList.remove('text-slate-400', 'dark:text-slate-600', 'line-through');
+                nameSpan.classList.add('dark:text-slate-100');
+            }
+        });
+        updateStats();
+    });
+</script>

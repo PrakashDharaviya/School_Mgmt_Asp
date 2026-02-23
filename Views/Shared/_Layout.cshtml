@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - School ERP</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/school-erp.css" asp-append-version="true" />
+    <script>
+        // Apply theme immediately to prevent flash
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e3fae",
+                        "primary-light": "#eef2ff",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#121520",
+                        "surface-dark": "#1e2130",
+                        "surface-dark-hover": "#262a3e",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "1.75rem", "full": "9999px" },
+                    boxShadow: { 'soft': '0 8px 24px rgba(0,0,0,0.08)' }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden transition-colors duration-300">
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        var userRole = ViewData["UserRole"]?.ToString() ?? "";
+        var isAdmin = User.IsInRole("Admin");
+        var isTeacher = User.IsInRole("Teacher");
+        var isStudent = User.IsInRole("Student");
+
+        <!-- Top Navigation Bar -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark px-4 sm:px-6 py-3 sticky top-0 z-50 transition-colors duration-300">
+            <div class="flex items-center gap-3 sm:gap-8">
+                <!-- Mobile Hamburger -->
+                <button id="sidebarToggle" type="button" class="lg:hidden flex items-center justify-center size-10 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark-hover transition-colors" aria-label="Toggle menu">
+                    <span class="material-symbols-outlined !text-[24px]" id="hamburgerIcon">menu</span>
+                </button>
+                <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-2 sm:gap-4 text-slate-900 dark:text-white">
+                    <div class="size-8 text-primary dark:text-blue-400">
+                        <span class="material-symbols-outlined !text-[32px]">school</span>
+                    </div>
+                    <h2 class="text-slate-900 dark:text-white text-lg sm:text-xl font-bold leading-tight tracking-[-0.015em] hidden xs:block">School ERP</h2>
+                </a>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Theme Toggle -->
+                <button id="themeToggle" type="button" class="flex items-center justify-center size-10 rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-surface-dark-hover transition-colors" title="Toggle theme">
+                    <span class="material-symbols-outlined !text-[20px] dark:hidden">dark_mode</span>
+                    <span class="material-symbols-outlined !text-[20px] hidden dark:inline">light_mode</span>
+                </button>
+                <!-- User Info -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 dark:bg-blue-500/20 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-sm border border-primary/20 dark:border-blue-500/30">
+                        @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <div class="hidden md:flex flex-col">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">@User.Identity?.Name</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">@userRole</p>
+                    </div>
+                    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors ml-1 sm:ml-2" title="Logout">
+                            <span class="material-symbols-outlined !text-[20px]">logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 relative">
+            <!-- Mobile Sidebar Backdrop -->
+            <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 hidden lg:hidden transition-opacity duration-300 opacity-0"></div>
+
+            <!-- Sidebar - Role Based (responsive: slide-over on mobile, static on desktop) -->
+            <aside id="sidebar" class="fixed lg:sticky top-[57px] lg:top-[57px] left-0 z-40 flex flex-col w-72 sm:w-64 bg-white dark:bg-surface-dark border-r border-slate-200 dark:border-slate-700 py-6 px-4 gap-2 h-[calc(100vh-57px)] overflow-y-auto transition-transform duration-300 -translate-x-full lg:translate-x-0">
+                <div class="mb-4 px-2">
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Main Menu</p>
+                </div>
+
+                <!-- Dashboard - Everyone -->
+                <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                    <span class="material-symbols-outlined !text-[20px]">dashboard</span><span>Dashboard</span>
+                </a>
+
+                @if (isAdmin || isTeacher)
+                {
+                    <a asp-area="Student" asp-controller="Admission" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">school</span><span>Students</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="Enrollment" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">how_to_reg</span><span>Enrollment</span>
+                    </a>
+                }
+
+                @if (isStudent)
+                {
+                    <a asp-area="Student" asp-controller="Profile" asp-action="MyProfile" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">person</span><span>My Profile</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="FeePayment" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">payments</span><span>My Fees</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="Profile" asp-action="MyAttendance" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">person_check</span><span>My Attendance</span>
+                    </a>
+                }
+
+                @if (isAdmin || isTeacher)
+                {
+                    <a asp-area="Teacher" asp-controller="Attendance" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">person_check</span><span>Attendance</span>
+                    </a>
+                    <a asp-area="Teacher" asp-controller="Exam" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">assignment</span><span>Exams</span>
+                    </a>
+                    <a asp-area="Teacher" asp-controller="Marks" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">grade</span><span>Marks & GPA</span>
+                    </a>
+                }
+
+                @if (isAdmin)
+                {
+                    <div class="mt-4 mb-2 px-2">
+                        <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Administration</p>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Subject" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">menu_book</span><span>Subjects</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="ClassSection" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">meeting_room</span><span>Class Sections</span>
+                    </a>
+                    <a asp-area="Student" asp-controller="FeePayment" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">payments</span><span>Fee Collection</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="FeeStructure" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">account_balance_wallet</span><span>Fee Structure</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="Salary" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">account_balance</span><span>Salary</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="AcademicYear" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">calendar_month</span><span>Academic Year</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="Reports" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">analytics</span><span>Reports</span>
+                    </a>
+                    <a asp-area="Shared" asp-controller="Role" asp-action="Index" class="sidebar-link flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-surface-dark-hover hover:text-slate-900 dark:hover:text-white transition-all">
+                        <span class="material-symbols-outlined !text-[20px]">manage_accounts</span><span>Roles</span>
+                    </a>
+                }
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto max-w-full min-w-0">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert-success alert-auto-dismiss flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 dark:text-emerald-400">check_circle</span>
+                        @TempData["Success"]
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-error alert-auto-dismissible flex items-center gap-2">
+                        <span class="material-symbols-outlined text-red-600 dark:text-red-400">error</span>
+                        @TempData["Error"]
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    }
+    else
+    {
+        @RenderBody()
+    }
+
+    <script src="~/js/school-erp.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,70 @@
+@model FeeStructureListViewModel
+@{ ViewData["Title"] = "Fee Structure"; ViewData["UserRole"] = "Admin"; }
+
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+    <div>
+        <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Fee Management Dashboard</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 text-base">Fee structures for @Model.ActiveAcademicYearName</p>
+    </div>
+    <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">add</span> Add Fee Head
+    </a>
+</div>
+
+<!-- Summary Card -->
+<div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Fee Structure Amount</p>
+            <h3 class="text-4xl font-bold text-slate-900 dark:text-white">&#x20B9;@Model.TotalFeeAmount.ToString("N0")</h3>
+        </div>
+        <div class="size-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-3xl">account_balance_wallet</span>
+        </div>
+    </div>
+</div>
+
+<!-- Fee Breakdown -->
+<div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 md:p-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">account_balance_wallet</span> Fee Breakdown
+        </h2>
+    </div>
+    <div class="space-y-4">
+        @if (Model.FeeHeads.Any())
+        {
+            @foreach (var fee in Model.FeeHeads)
+            {
+                <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-surface-dark-hover group hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white dark:bg-surface-dark flex items-center justify-center text-primary shadow-sm">
+                            <span class="material-symbols-outlined text-[20px]">receipt</span>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900 dark:text-slate-100">@fee.Name</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">@(fee.ApplicableClass ?? "All Classes") &bull; Due: @fee.DueDate.ToString("dd-MMM-yyyy")</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="font-bold text-slate-900 dark:text-white">&#x20B9;@fee.Amount.ToString("N0")</span>
+                        <a asp-action="Edit" asp-route-id="@fee.Id" class="text-primary hover:text-primary/80">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </a>
+                        <form asp-action="Delete" method="post" class="inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@fee.Id" />
+                            <button type="submit" class="text-red-400 hover:text-red-600" onclick="return confirm('Delete \'@fee.Name\'? This cannot be undone.')">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-center py-12 text-slate-400">No fee heads configured. Click &quot;Add Fee Head&quot; to get started.</div>
+        }
+    </div>
+</div>

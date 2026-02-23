@@ -1,0 +1,98 @@
+@{ ViewData["Title"] = "My Attendance"; ViewData["UserRole"] = "Student"; }
+
+<div class="mb-8">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">My Attendance</h1>
+    <p class="text-slate-500 dark:text-slate-400 mt-1">@ViewBag.StudentName — Attendance overview</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Days</p>
+        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">@ViewBag.TotalDays</h3>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Present</p>
+        <h3 class="text-2xl font-bold text-emerald-600">@ViewBag.PresentDays</h3>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Absent</p>
+        <h3 class="text-2xl font-bold text-red-600">@ViewBag.AbsentDays</h3>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Percentage</p>
+        <h3 class="text-2xl font-bold @(ViewBag.Percentage >= 75 ? "text-emerald-600" : "text-red-600")">@ViewBag.Percentage%</h3>
+    </div>
+</div>
+
+<!-- Attendance Progress Bar -->
+<div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-8">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-lg dark:text-white">Attendance Rate</h3>
+        <span class="text-sm font-semibold @(ViewBag.Percentage >= 75 ? "text-emerald-600" : "text-red-600")">@ViewBag.Percentage%</span>
+    </div>
+    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+        <div class="h-3 rounded-full @(ViewBag.Percentage >= 75 ? "bg-emerald-500" : "bg-red-500")" style="width: @ViewBag.Percentage%"></div>
+    </div>
+    @if (ViewBag.Percentage < 75)
+    {
+        <p class="text-red-600 text-sm mt-3 flex items-center gap-1">
+            <span class="material-symbols-outlined text-base">warning</span>
+            Your attendance is below the required 75%. Please improve your attendance.
+        </p>
+    }
+</div>
+
+<!-- Recent Attendance Records -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+        <h3 class="font-bold text-lg dark:text-white">Recent Attendance (Last 30 Records)</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3">#</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Day</th>
+                    <th class="px-6 py-3">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @{ var records = ViewBag.Records as IList<dynamic>; var idx = 0; }
+                @if (records != null && records.Count > 0)
+                {
+                    @foreach (var r in records)
+                    {
+                        idx++;
+                        DateTime dt = r.Date;
+                        bool present = r.IsPresent;
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                            <td class="px-6 py-3 text-sm text-slate-400 dark:text-slate-500">@idx</td>
+                            <td class="px-6 py-3 text-sm font-medium dark:text-white">@dt.ToString("dd-MMM-yyyy")</td>
+                            <td class="px-6 py-3 text-sm text-slate-500 dark:text-slate-400">@dt.ToString("dddd")</td>
+                            <td class="px-6 py-3">
+                                @if (present)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                                        <span class="material-symbols-outlined text-[14px]">check_circle</span> Present
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">
+                                        <span class="material-symbols-outlined text-[14px]">cancel</span> Absent
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">No attendance records found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -63,19 +63,48 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ----- Apply EF Migrations at startup -----
+// ----- Apply EF Migrations + Seed default users at startup -----
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        var context = services.GetRequiredService<ApplicationDbContext>();
+        var context     = services.GetRequiredService<ApplicationDbContext>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
         await context.Database.MigrateAsync();
+
+        // 1. Ensure roles exist
+        foreach (var role in new[] { "Admin", "Teacher", "Student" })
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+        }
+
+        // 2. Default Admin
+        if (await userManager.FindByEmailAsync("admin@schoolerp.com") == null)
+        {
+            var admin = new ApplicationUser
+            {
+                UserName     = "admin@schoolerp.com",
+                Email        = "admin@schoolerp.com",
+                FullName     = "System Administrator",
+                RoleType     = "Admin",
+                EmailConfirmed  = true,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow
+            };
+            var res = await userManager.CreateAsync(admin, "Admin@123");
+            if (res.Succeeded) await userManager.AddToRoleAsync(admin, "Admin");
+        }
+
+        // Teacher and Student accounts are created through the admin UI (Teacher Management & Admission forms).
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while applying database migrations.");
+        logger.LogError(ex, "An error occurred during startup seeding.");
     }
 }
 

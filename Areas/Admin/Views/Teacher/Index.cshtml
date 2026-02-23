@@ -1,0 +1,131 @@
+@model SchoolEduERP.Helpers.PaginatedList<TeacherViewModel>
+@using Microsoft.AspNetCore.Routing
+@{
+    ViewData["Title"] = "Teachers";
+    ViewData["UserRole"] = "Admin";
+    var search       = ViewBag.SearchTerm as string ?? "";
+    var activeFilter = ViewBag.ActiveFilter as bool?;
+    ViewData["RouteValues"] = new RouteValueDictionary(new { search, active = activeFilter });
+}
+
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Teacher Management</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage teachers and their login accounts.</p>
+    </div>
+    <a asp-action="Create" asp-area="Admin" asp-controller="Teacher" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 w-fit">
+        <span class="material-symbols-outlined text-[20px]">person_add</span> Add Teacher
+    </a>
+</div>
+
+@* Filter bar *@
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Search</label>
+            <input name="search" value="@search" placeholder="Name, Employee ID, email…"
+                   class="rounded-lg border-slate-200 bg-slate-50 text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[220px]" />
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Status</label>
+            <select name="active" class="rounded-lg border-slate-200 bg-slate-50 text-sm py-2 px-3 focus:ring-primary focus:border-primary">
+                <option value="">All</option>
+                <option value="true" selected="@(activeFilter == true)">Active</option>
+                <option value="false" selected="@(activeFilter == false)">Inactive</option>
+            </select>
+        </div>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary/90">
+            <span class="material-symbols-outlined !text-[16px] align-middle mr-1">search</span> Search
+        </button>
+        <a asp-action="Index" asp-area="Admin" asp-controller="Teacher" class="text-sm text-slate-500 hover:text-primary font-medium px-3 py-2">Clear</a>
+    </form>
+</div>
+
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3">Teacher</th>
+                    <th class="px-6 py-3">Employee ID</th>
+                    <th class="px-6 py-3">Email</th>
+                    <th class="px-6 py-3">Specialization</th>
+                    <th class="px-6 py-3">Joining Date</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Login</th>
+                    <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @foreach (var t in Model)
+                {
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                                    @t.FirstName[0]@t.LastName[0]
+                                </div>
+                                <span class="font-semibold text-slate-800 dark:text-slate-100">@t.FirstName @t.LastName</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-sm text-slate-500">@t.EmployeeId</td>
+                        <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">@(t.Email ?? "—")</td>
+                        <td class="px-6 py-4 text-sm text-slate-500">@(t.Specialization ?? "—")</td>
+                        <td class="px-6 py-4 text-sm text-slate-500">@t.JoiningDate.ToString("dd MMM yyyy")</td>
+                        <td class="px-6 py-4">
+                            @if (t.IsActive)
+                            {
+                                <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">Active</span>
+                            }
+                            else
+                            {
+                                <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">Inactive</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            @if (t.HasLoginAccount)
+                            {
+                                <span class="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                                    <span class="material-symbols-outlined !text-[15px]">check_circle</span> Set
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="flex items-center gap-1 text-xs text-amber-500 font-semibold">
+                                    <span class="material-symbols-outlined !text-[15px]">warning</span> None
+                                </span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Edit" asp-area="Admin" asp-controller="Teacher" asp-route-id="@t.Id"
+                                   class="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-[16px]">edit</span> Edit
+                                </a>
+                                <form asp-action="Delete" asp-area="Admin" asp-controller="Teacher" method="post" class="inline"
+                                      onsubmit="return confirm('Deactivate teacher @t.FirstName @t.LastName?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <button type="submit"
+                                            class="flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                                        <span class="material-symbols-outlined text-[16px]">block</span> Deactivate
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center">
+                            <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">person_search</span>
+                            <span class="text-slate-400">No teachers found. Click "Add Teacher" to get started.</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @await Html.PartialAsync("_Pagination", Model)
+</div>

@@ -52,7 +52,12 @@ public class FeePaymentController : Controller
             return View(new FeeViewModel { StudentName = "No student record linked" });
 
         var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
-        var yearId = activeYear?.Id ?? 1;
+        if (activeYear == null)
+        {
+            TempData["Error"] = "No active academic year set.";
+            return View(new FeeViewModel { StudentName = selectedStudent.FirstName + " " + selectedStudent.LastName });
+        }
+        var yearId = activeYear.Id;
 
         var feeHeads = await _context.FeeHeads.Where(f => f.IsActive && f.AcademicYearId == yearId).ToListAsync();
         var payments = await _context.FeePayments

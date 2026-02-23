@@ -56,6 +56,17 @@ public class AdmissionViewModel
     // Display
     public string? ClassName { get; set; }
 
+    // ── Login Credentials (set once on admission; leave blank if no login needed) ──
+    [Display(Name = "Login Password")]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+    public string? Password { get; set; }
+
+    [Display(Name = "Confirm Password")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
+    public string? ConfirmPassword { get; set; }
+
     // Dropdown lists
     public List<ClassSectionListItem> ClassSections { get; set; } = new();
     public List<AcademicYearListItem> AcademicYears { get; set; } = new();

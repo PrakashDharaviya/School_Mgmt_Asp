@@ -50,9 +50,20 @@ public class FeeReminderService : IFeeReminderService
                 .Select(p => p.StudentId)
                 .ToListAsync();
 
-            var unpaidStudents = await _context.Students
-                .Where(s => s.IsActive && !paidStudentIds.Contains(s.Id))
-                .ToListAsync();
+            // Filter students by applicable class if specified
+            IQueryable<Student> studentQuery = _context.Students.Where(s => s.IsActive && !paidStudentIds.Contains(s.Id));
+            if (!string.IsNullOrWhiteSpace(fee.ApplicableClass))
+            {
+                var applicableStudentIds = await _context.Enrollments
+                    .Include(e => e.ClassSection)
+                    .Where(e => e.IsActive && e.ClassSection.ClassName == fee.ApplicableClass)
+                    .Select(e => e.StudentId)
+                    .Distinct()
+                    .ToListAsync();
+                studentQuery = studentQuery.Where(s => applicableStudentIds.Contains(s.Id));
+            }
+
+            var unpaidStudents = await studentQuery.ToListAsync();
 
             foreach (var student in unpaidStudents)
             {
@@ -80,9 +91,20 @@ public class FeeReminderService : IFeeReminderService
                 .Select(p => p.StudentId)
                 .ToListAsync();
 
-            var unpaidStudents = await _context.Students
-                .Where(s => s.IsActive && !paidStudentIds.Contains(s.Id))
-                .ToListAsync();
+            // Filter students by applicable class if specified for upcoming fees
+            IQueryable<Student> upcomingStudentQuery = _context.Students.Where(s => s.IsActive && !paidStudentIds.Contains(s.Id));
+            if (!string.IsNullOrWhiteSpace(fee.ApplicableClass))
+            {
+                var applicableStudentIds = await _context.Enrollments
+                    .Include(e => e.ClassSection)
+                    .Where(e => e.IsActive && e.ClassSection.ClassName == fee.ApplicableClass)
+                    .Select(e => e.StudentId)
+                    .Distinct()
+                    .ToListAsync();
+                upcomingStudentQuery = upcomingStudentQuery.Where(s => applicableStudentIds.Contains(s.Id));
+            }
+
+            var unpaidStudents = await upcomingStudentQuery.ToListAsync();
 
             foreach (var student in unpaidStudents)
             {

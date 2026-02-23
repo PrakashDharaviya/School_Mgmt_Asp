@@ -123,6 +123,36 @@ public class AccountController : Controller
         if (result.Succeeded)
         {
             await _userManager.AddToRoleAsync(user, model.Role);
+
+            // If role is Student, create a Student domain record
+            if (string.Equals(model.Role, "Student", StringComparison.OrdinalIgnoreCase))
+            {
+                var studentExists = await _context.Students.AnyAsync(s => s.Email == model.Email);
+                if (!studentExists)
+                {
+                    var names = (model.FullName ?? "").Split(' ', 2);
+                    var first = names.Length > 0 ? names[0] : model.FullName;
+                    var last = names.Length > 1 ? names[1] : string.Empty;
+                    var admissionNumber = $"ADM-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..4].ToUpper()}";
+
+                    var studentEntity = new Student
+                    {
+                        AdmissionNumber = admissionNumber,
+                        FirstName = first ?? string.Empty,
+                        LastName = last ?? string.Empty,
+                        Email = model.Email,
+                        DateOfBirth = DateTime.UtcNow,
+                        Gender = "N/A",
+                        AdmissionDate = DateTime.UtcNow,
+                        IsActive = true,
+                        UserId = user.Id
+                    };
+
+                    _context.Students.Add(studentEntity);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             _logger.LogInformation("User {Email} registered as {Role}.", model.Email, model.Role);
             TempData["Success"] = "Registration successful!";
             // After admin creates user, keep admin on role management or redirect to role list

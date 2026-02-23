@@ -25,7 +25,7 @@ public class AttendanceController : Controller
         var selectedClassId = classSectionId ?? classSections.FirstOrDefault()?.Id ?? 0;
 
         var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
-        var yearId = activeYear?.Id ?? 1;
+        var yearId = activeYear?.Id ?? 0;
 
         var enrolledStudents = await _context.Enrollments
             .Include(e => e.Student)

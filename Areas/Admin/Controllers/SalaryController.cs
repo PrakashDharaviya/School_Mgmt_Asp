@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolEduERP.Areas.Admin.Models;
 using SchoolEduERP.Data;
+using SchoolEduERP.Helpers;
 using SchoolEduERP.Models.Domain;
 
 namespace SchoolEduERP.Areas.Admin.Controllers;
@@ -12,30 +13,46 @@ namespace SchoolEduERP.Areas.Admin.Controllers;
 public class SalaryController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private const int PageSize = 10;
 
     public SalaryController(ApplicationDbContext context) => _context = context;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? teacherId, string? status, int page = 1)
     {
-        var salaries = await _context.Salaries
+        var query = _context.Salaries
             .Include(s => s.Teacher)
+            .AsQueryable();
+
+        if (teacherId.HasValue)
+            query = query.Where(s => s.TeacherId == teacherId.Value);
+        if (!string.IsNullOrEmpty(status))
+            query = query.Where(s => s.Status == status);
+
+        var projected = query
             .OrderByDescending(s => s.PaymentDate)
+            .ThenByDescending(s => s.Id)
             .Select(s => new SalaryViewModel
             {
-                Id = s.Id,
+                Id        = s.Id,
                 TeacherId = s.TeacherId,
                 TeacherName = s.Teacher.FirstName + " " + s.Teacher.LastName,
-                EmployeeId = s.Teacher.EmployeeId,
+                EmployeeId  = s.Teacher.EmployeeId,
                 BasicSalary = s.BasicSalary,
-                Allowances = s.Allowances,
-                Deductions = s.Deductions,
+                Allowances  = s.Allowances,
+                Deductions  = s.Deductions,
                 PaymentDate = s.PaymentDate,
-                Month = s.Month,
+                Month  = s.Month,
                 Status = s.Status
-            })
-            .ToListAsync();
+            });
 
-        return View(salaries);
+        var paged = await PaginatedList<SalaryViewModel>.CreateAsync(projected, page, PageSize);
+
+        ViewBag.Teachers       = await _context.Teachers.Where(t => t.IsActive)
+            .Select(t => new TeacherDropdown { Id = t.Id, Name = t.FirstName + " " + t.LastName }).ToListAsync();
+        ViewBag.SelectedTeacher = teacherId;
+        ViewBag.SelectedStatus  = status;
+
+        return View(paged);
     }
 
     [HttpGet]

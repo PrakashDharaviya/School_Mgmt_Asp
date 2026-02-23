@@ -102,6 +102,58 @@ public class AcademicYearDropdown { public int Id { get; set; } public string Na
 public class TeacherDropdown { public int Id { get; set; } public string Name { get; set; } = string.Empty; }
 public class GpaDistributionItem { public string Range { get; set; } = string.Empty; public int Count { get; set; } }
 
+// ── Teacher Management ────────────────────────────────────────────────
+public class TeacherViewModel
+{
+    public int Id { get; set; }
+
+    [Required, MaxLength(50)]
+    [Display(Name = "Employee ID")]
+    public string EmployeeId { get; set; } = string.Empty;
+
+    [Required, MaxLength(100)]
+    [Display(Name = "First Name")]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required, MaxLength(100)]
+    [Display(Name = "Last Name")]
+    public string LastName { get; set; } = string.Empty;
+
+    [Required, EmailAddress]
+    [Display(Name = "Email")]
+    public string Email { get; set; } = string.Empty;
+
+    [Phone]
+    public string? Phone { get; set; }
+
+    [MaxLength(100)]
+    public string? Specialization { get; set; }
+
+    [MaxLength(100)]
+    public string? Qualification { get; set; }
+
+    [Display(Name = "Joining Date")]
+    [DataType(DataType.Date)]
+    public DateTime JoiningDate { get; set; } = DateTime.Today;
+
+    public bool IsActive { get; set; } = true;
+
+    // ── Login Credentials (required on create, ignored on edit) ──
+    [Display(Name = "Login Password")]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
+    public string? Password { get; set; }
+
+    [Display(Name = "Confirm Password")]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Passwords do not match")]
+    public string? ConfirmPassword { get; set; }
+
+    // Display only
+    public string? UserId { get; set; }
+    public bool HasLoginAccount => !string.IsNullOrEmpty(UserId);
+}
+
 // Academic Year Management
 public class AcademicYearViewModel
 {

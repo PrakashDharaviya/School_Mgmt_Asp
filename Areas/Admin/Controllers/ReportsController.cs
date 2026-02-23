@@ -28,13 +28,25 @@ public class ReportsController : Controller
     public async Task<IActionResult> Index()
     {
         var activeYear = await _academicYearService.GetActiveYearAsync();
-        var yearId = activeYear?.Id ?? 1;
+        if (activeYear == null)
+        {
+            TempData["Error"] = "No active academic year set. Please set an active year first.";
+            return View(new ReportViewModel { ActiveAcademicYear = "N/A" });
+        }
+        var yearId = activeYear.Id;
 
         // Fee calculations - per student
         var activeStudentCount = await _context.Enrollments.CountAsync(e => e.AcademicYearId == yearId && e.IsActive);
         var feePerStudent = await _context.FeeHeads.Where(f => f.IsActive && f.AcademicYearId == yearId).SumAsync(f => f.Amount);
         var totalFeeExpected = feePerStudent * activeStudentCount;
-        var totalCollected = await _context.FeePayments.Where(p => p.Status == "Completed").SumAsync(p => p.AmountPaid);
+        // Only sum payments for fee heads in the active year
+        var activeYearFeeHeadIds = await _context.FeeHeads
+            .Where(f => f.AcademicYearId == yearId)
+            .Select(f => f.Id)
+            .ToListAsync();
+        var totalCollected = await _context.FeePayments
+            .Where(p => p.Status == "Completed" && activeYearFeeHeadIds.Contains(p.FeeHeadId))
+            .SumAsync(p => p.AmountPaid);
         var totalOverdue = totalFeeExpected - totalCollected;
         if (totalOverdue < 0) totalOverdue = 0;
 

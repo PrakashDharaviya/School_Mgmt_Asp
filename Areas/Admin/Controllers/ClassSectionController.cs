@@ -82,7 +82,23 @@ public class ClassSectionController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        _context.ClassSections.Update(model);
+        var existing = await _context.ClassSections.FindAsync(model.Id);
+        if (existing == null) return NotFound();
+
+        // Check for duplicate ClassName+Section (exclude self)
+        var duplicate = await _context.ClassSections
+            .AnyAsync(c => c.ClassName == model.ClassName && c.Section == model.Section && c.Id != model.Id);
+        if (duplicate)
+        {
+            ModelState.AddModelError("", $"Class {model.ClassName}-{model.Section} already exists.");
+            return View(model);
+        }
+
+        // Update only changed fields to preserve CreatedAt and other audit fields
+        existing.ClassName = model.ClassName;
+        existing.Section = model.Section;
+        existing.Capacity = model.Capacity;
+
         await _context.SaveChangesAsync();
         TempData["Success"] = "Class section updated.";
         return RedirectToAction(nameof(Index));
@@ -98,7 +114,7 @@ public class ClassSectionController : Controller
         var hasEnrollments = await _context.Enrollments.AnyAsync(e => e.ClassSectionId == id && e.IsActive);
         if (hasEnrollments)
         {
-            TempData["Error"] = "Cannot delete — active enrollments exist for this class.";
+            TempData["Error"] = "Cannot delete ï¿½ active enrollments exist for this class.";
             return RedirectToAction(nameof(Index));
         }
 

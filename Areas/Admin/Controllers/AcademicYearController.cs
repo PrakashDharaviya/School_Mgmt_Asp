@@ -61,6 +61,12 @@ public class AcademicYearController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        if (startDate >= endDate)
+        {
+            TempData["Error"] = "Start date must be before end date.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var exists = await _context.AcademicYears.AnyAsync(a => a.Name == name);
         if (exists)
         {
@@ -98,6 +104,12 @@ public class AcademicYearController : Controller
         year.EndDate = endDate;
         year.UpdatedAt = DateTime.UtcNow;
 
+        if (startDate >= endDate)
+        {
+            TempData["Error"] = "Start date must be before end date.";
+            return RedirectToAction(nameof(Index));
+        }
+
         await _context.SaveChangesAsync();
         TempData["Success"] = $"Academic year '{name}' updated successfully!";
         return RedirectToAction(nameof(Index));
@@ -123,6 +135,13 @@ public class AcademicYearController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        var hasFeeHeads = await _context.FeeHeads.AnyAsync(f => f.AcademicYearId == id);
+        if (hasFeeHeads)
+        {
+            TempData["Error"] = "Cannot delete this year because it has fee structures linked to it.";
+            return RedirectToAction(nameof(Index));
+        }
+
         _context.AcademicYears.Remove(year);
         await _context.SaveChangesAsync();
         TempData["Success"] = $"Academic year '{year.Name}' deleted.";
@@ -142,6 +161,13 @@ public class AcademicYearController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Rollover(int fromYearId, int toYearId)
     {
+        var toYear = await _context.AcademicYears.FindAsync(toYearId);
+        if (toYear == null)
+        {
+            TempData["Error"] = "Target academic year not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var enrollments = await _context.Enrollments
             .Where(e => e.AcademicYearId == fromYearId && e.IsActive)
             .ToListAsync();

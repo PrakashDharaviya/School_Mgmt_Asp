@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolEduERP.Areas.Student.Models;
 using SchoolEduERP.Data;
+using SchoolEduERP.Helpers;
+using SchoolEduERP.Models.Domain;
 using DomainModels = SchoolEduERP.Models.Domain;
 
 namespace SchoolEduERP.Areas.Student.Controllers;
@@ -12,15 +15,22 @@ namespace SchoolEduERP.Areas.Student.Controllers;
 public class AdmissionController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<AdmissionController> _logger;
 
-    public AdmissionController(ApplicationDbContext context, ILogger<AdmissionController> logger)
+    public AdmissionController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        ILogger<AdmissionController> logger)
     {
         _context = context;
+        _userManager = userManager;
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index(int? standard, string? section)
+    private const int PageSize = 10;
+
+    public async Task<IActionResult> Index(int? standard, string? section, string? search, int page = 1)
     {
         // Get all class sections for the filter dropdown
         var classSections = await _context.ClassSections.ToListAsync();
@@ -38,7 +48,7 @@ public class AdmissionController : Controller
         // Get active academic year
         var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
 
-        // Build student query — join with enrollment to know their class
+        // Build student query ï¿½ join with enrollment to know their class
         var query = _context.Students
             .Where(s => s.IsActive)
             .AsQueryable();
@@ -108,20 +118,27 @@ public class AdmissionController : Controller
                 .ToList();
         }
 
-        ViewBag.Standards = distinctStandards;
-        ViewBag.Sections = classSections.Select(c => c.Section).Distinct().OrderBy(s => s).ToList();
+        // Search by name or admission number
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var q = search.ToLower();
+            students = students
+                .Where(s => s.FirstName.ToLower().Contains(q)
+                         || s.LastName.ToLower().Contains(q)
+                         || (s.AdmissionNumber?.ToLower().Contains(q) ?? false)
+                         || (s.Email?.ToLower().Contains(q) ?? false))
+                .ToList();
+        }
+
+        var paged = PaginatedList<AdmissionViewModel>.CreateFromList(students, page, PageSize);
+
+        ViewBag.Standards        = distinctStandards;
+        ViewBag.Sections         = classSections.Select(c => c.Section).Distinct().OrderBy(s => s).ToList();
         ViewBag.SelectedStandard = standard;
-        ViewBag.SelectedSection = section;
+        ViewBag.SelectedSection  = section;
+        ViewBag.SearchTerm       = search;
 
-        // Group students by class for the view
-        ViewBag.GroupedStudents = students
-            .GroupBy(s => s.ClassName ?? "Not Enrolled")
-            .OrderBy(g => g.Key == "Not Enrolled" ? 1 : 0)
-            .ThenBy(g => int.TryParse(g.Key.Split('-')[0], out var n) ? n : 99)
-            .ThenBy(g => g.Key)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-        return View(students);
+        return View(paged);
     }
 
     [HttpGet]
@@ -168,6 +185,43 @@ public class AdmissionController : Controller
 
         _context.Students.Add(student);
         await _context.SaveChangesAsync();
+
+        // Create Identity login account if email + password were supplied
+        if (!string.IsNullOrWhiteSpace(model.Email) && !string.IsNullOrWhiteSpace(model.Password))
+        {
+            if (await _userManager.FindByEmailAsync(model.Email) == null)
+            {
+                var appUser = new ApplicationUser
+                {
+                    UserName       = model.Email,
+                    Email          = model.Email,
+                    FullName       = student.FirstName + " " + student.LastName,
+                    RoleType       = "Student",
+                    EmailConfirmed = true,
+                    CreatedAt      = DateTime.UtcNow,
+                    UpdatedAt      = DateTime.UtcNow
+                };
+                var userResult = await _userManager.CreateAsync(appUser, model.Password);
+                if (userResult.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(appUser, "Student");
+                    student.UserId = appUser.Id;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    TempData["Warning"] = "Student admitted but login account failed: " +
+                        string.Join("; ", userResult.Errors.Select(e => e.Description));
+                }
+            }
+            else
+            {
+                // Email already has an account â€” just link it
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                student.UserId = existingUser!.Id;
+                await _context.SaveChangesAsync();
+            }
+        }
 
         // Auto-enroll if class section and academic year selected
         if (model.ClassSectionId > 0 && model.AcademicYearId > 0)

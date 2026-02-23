@@ -1,13 +1,14 @@
-@model List<AdmissionViewModel>
+@model SchoolEduERP.Helpers.PaginatedList<AdmissionViewModel>
+@using Microsoft.AspNetCore.Routing
 @{
     ViewData["Title"] = "Students";
     ViewData["UserRole"] = "Student Management";
-    var standards = ViewBag.Standards as List<string> ?? new List<string>();
-    var sections = ViewBag.Sections as List<string> ?? new List<string>();
+    var standards       = ViewBag.Standards as List<string> ?? new List<string>();
+    var sections        = ViewBag.Sections  as List<string> ?? new List<string>();
     var selectedStandard = ViewBag.SelectedStandard as int?;
-    var selectedSection = ViewBag.SelectedSection as string;
-    var grouped = ViewBag.GroupedStudents as Dictionary<string, List<AdmissionViewModel>>
-        ?? new Dictionary<string, List<AdmissionViewModel>>();
+    var selectedSection  = ViewBag.SelectedSection  as string;
+    var searchTerm       = ViewBag.SearchTerm as string ?? "";
+    ViewData["RouteValues"] = new RouteValueDictionary(new { standard = selectedStandard, section = selectedSection, search = searchTerm });
 }
 
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -43,6 +44,11 @@
                 }
             </select>
         </div>
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Search</label>
+            <input name="search" value="@searchTerm" placeholder="Name, Adm. No or Email…"
+                   class="rounded-lg border-slate-200 bg-slate-50 text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[200px]" />
+        </div>
         <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all">
             <span class="material-symbols-outlined !text-[16px] align-middle mr-1">filter_alt</span> Filter
         </button>
@@ -50,84 +56,86 @@
     </form>
 </div>
 
-<!-- Class-wise Grouped Students -->
-@if (grouped.Any())
-{
-    @foreach (var group in grouped)
-    {
-        var classLabel = group.Key == "Not Enrolled" ? "Not Enrolled" : "Std " + group.Key;
-        var badgeColor = group.Key == "Not Enrolled" ? "bg-amber-100 text-amber-700" : "bg-primary/10 text-primary";
-
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-3">
-                <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold @badgeColor">
-                    <span class="material-symbols-outlined !text-[16px]">class</span>
-                    @classLabel
-                </span>
-                <span class="text-sm text-slate-400 dark:text-slate-500">@group.Value.Count students</span>
-            </div>
-            <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                <th class="px-6 py-3">Roll</th>
-                                <th class="px-6 py-3">Adm. No</th>
-                                <th class="px-6 py-3">Name</th>
-                                <th class="px-6 py-3">Email</th>
-                                <th class="px-6 py-3">Gender</th>
-                                <th class="px-6 py-3">DOB</th>
-                                <th class="px-6 py-3 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                            @foreach (var s in group.Value)
-                            {
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
-                                    <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@(s.RollNumber > 0 ? s.RollNumber.ToString("D3") : "-")</td>
-                                    <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@s.AdmissionNumber</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">@s.FirstName[0]@s.LastName[0]</div>
-                                            <span class="font-semibold">@s.FirstName @s.LastName</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@(s.Email ?? "N/A")</td>
-                                    <td class="px-6 py-4 text-sm">@(s.Gender ?? "N/A")</td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@s.DateOfBirth.ToString("dd-MMM-yyyy")</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a asp-action="Edit" asp-route-id="@s.Id"
-                                               class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
-                                                <span class="material-symbols-outlined !text-[16px]">edit</span> Edit
-                                            </a>
-                                            <a asp-area="Student" asp-controller="Profile" asp-action="Index" asp-route-id="@s.Id"
-                                               class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors">
-                                                <span class="material-symbols-outlined !text-[16px]">person</span> Profile
-                                            </a>
-                                            <form asp-action="Delete" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@s.Id" />
-                                                <button type="submit" onclick="return confirm('Remove this student?')"
-                                                        class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-500 bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
-                                                    <span class="material-symbols-outlined !text-[16px]">delete</span> Remove
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    }
-}
-else
-{
-    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-12 text-center text-slate-400 dark:text-slate-500">
-        <span class="material-symbols-outlined text-5xl mb-2">group_off</span>
-        <p>No students found. Click "New Admission" to add one.</p>
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="px-6 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+        <span class="text-sm text-slate-500 dark:text-slate-400">
+            Showing <strong>@(((Model.PageIndex - 1) * Model.PageSize) + 1)</strong>&ndash;<strong>@Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount)</strong> of <strong>@Model.TotalCount</strong> students
+        </span>
     </div>
-}
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-surface-dark-hover text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
+                    <th class="px-6 py-3">Roll</th>
+                    <th class="px-6 py-3">Adm. No</th>
+                    <th class="px-6 py-3">Class</th>
+                    <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Email</th>
+                    <th class="px-6 py-3">Gender</th>
+                    <th class="px-6 py-3">DOB</th>
+                    <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                @foreach (var s in Model)
+                {
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@(s.RollNumber > 0 ? s.RollNumber.ToString("D3") : "-")</td>
+                        <td class="px-6 py-4 font-mono text-sm text-slate-500 dark:text-slate-400">@s.AdmissionNumber</td>
+                        <td class="px-6 py-4">
+                            @if (!string.IsNullOrEmpty(s.ClassName))
+                            {
+                                <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded">@s.ClassName</span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400 text-xs">Not Enrolled</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                    @s.FirstName[0]@s.LastName[0]
+                                </div>
+                                <span class="font-semibold">@s.FirstName @s.LastName</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@(s.Email ?? "N/A")</td>
+                        <td class="px-6 py-4 text-sm">@(s.Gender ?? "N/A")</td>
+                        <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@s.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@s.Id"
+                                   class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/5 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined !text-[16px]">edit</span> Edit
+                                </a>
+                                <a asp-area="Student" asp-controller="Profile" asp-action="Index" asp-route-id="@s.Id"
+                                   class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined !text-[16px]">person</span> Profile
+                                </a>
+                                <form asp-action="Delete" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button type="submit" onclick="return confirm('Remove this student?')"
+                                            class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-500 bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
+                                        <span class="material-symbols-outlined !text-[16px]">delete</span> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center">
+                            <span class="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 block mb-2">group_off</span>
+                            <span class="text-slate-400 dark:text-slate-500">No students match your filters.</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @await Html.PartialAsync("_Pagination", Model)
+</div>

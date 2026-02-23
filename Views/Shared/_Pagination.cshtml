@@ -1,0 +1,102 @@
+@*
+    _Pagination.cshtml  – reusable paging controls
+    Usage in a view:
+        ViewData["RouteValues"] = new RouteValueDictionary(new { standard = selectedStandard, ... });
+        @await Html.PartialAsync("_Pagination", Model)
+    Model must be a PaginatedList<T> (or any object with PageIndex / TotalPages / TotalCount / PageSize).
+*@
+@using Microsoft.AspNetCore.Routing
+
+@{
+    dynamic pg         = Model;
+    int pageIndex      = (int)pg.PageIndex;
+    int totalPages     = (int)pg.TotalPages;
+    int totalCount     = (int)pg.TotalCount;
+    int pageSize       = (int)pg.PageSize;
+    bool hasPrev       = (bool)pg.HasPreviousPage;
+    bool hasNext       = (bool)pg.HasNextPage;
+
+    var baseRoute = ViewData["RouteValues"] as RouteValueDictionary ?? new RouteValueDictionary();
+
+    int start = Math.Max(1, pageIndex - 2);
+    int end   = Math.Min(totalPages, pageIndex + 2);
+    int from  = totalCount == 0 ? 0 : (pageIndex - 1) * pageSize + 1;
+    int to    = Math.Min(pageIndex * pageSize, totalCount);
+
+    // Helper: clone route with given page number
+    RouteValueDictionary PageRoute(int p)
+    {
+        var rv = new RouteValueDictionary(baseRoute);
+        rv["page"] = p;
+        return rv;
+    }
+}
+
+@if (totalCount == 0) { return; }
+
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-surface-dark-hover/30">
+
+    <p class="text-sm text-slate-500 dark:text-slate-400 select-none">
+        Showing <span class="font-semibold text-slate-700 dark:text-slate-200">@from–@to</span>
+        of <span class="font-semibold text-slate-700 dark:text-slate-200">@totalCount</span> records
+    </p>
+
+    @if (totalPages > 1)
+    {
+        <nav class="flex items-center gap-1" aria-label="Pagination">
+
+            @* Previous *@
+            <a href="@(hasPrev ? Url.Action(null, null, PageRoute(pageIndex - 1)) : "#")"
+               class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors
+                      @(hasPrev
+                         ? "border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary"
+                         : "border-transparent text-slate-300 dark:text-slate-600 pointer-events-none cursor-not-allowed")">
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+            </a>
+
+            @* First page + ellipsis *@
+            @if (start > 1)
+            {
+                <a href="@Url.Action(null, null, PageRoute(1))"
+                   class="inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-colors">1</a>
+                if (start > 2)
+                {
+                    <span class="px-1 text-slate-400 text-sm select-none">…</span>
+                }
+            }
+
+            @* Numbered pages *@
+            @for (int p = start; p <= end; p++)
+            {
+                bool active = (p == pageIndex);
+                <a href="@Url.Action(null, null, PageRoute(p))"
+                   aria-current="@(active ? "page" : null)"
+                   class="inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-lg border transition-colors
+                          @(active
+                             ? "bg-primary border-primary text-white shadow-sm shadow-primary/30"
+                             : "border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary")">@p</a>
+            }
+
+            @* Last page + ellipsis *@
+            @if (end < totalPages)
+            {
+                if (end < totalPages - 1)
+                {
+                    <span class="px-1 text-slate-400 text-sm select-none">…</span>
+                }
+                <a href="@Url.Action(null, null, PageRoute(totalPages))"
+                   class="inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary transition-colors">@totalPages</a>
+            }
+
+            @* Next *@
+            <a href="@(hasNext ? Url.Action(null, null, PageRoute(pageIndex + 1)) : "#")"
+               class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors
+                      @(hasNext
+                         ? "border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary"
+                         : "border-transparent text-slate-300 dark:text-slate-600 pointer-events-none cursor-not-allowed")">
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </a>
+
+        </nav>
+    }
+</div>

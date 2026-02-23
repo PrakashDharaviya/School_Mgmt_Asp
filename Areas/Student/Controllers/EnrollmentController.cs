@@ -93,11 +93,10 @@ public class EnrollmentController : Controller
         var exists = await _context.Enrollments
             .AnyAsync(e => e.StudentId == model.StudentId
                         && e.ClassSectionId == model.ClassSectionId
-                        && e.AcademicYearId == model.AcademicYearId
-                        && e.IsActive);
+                        && e.AcademicYearId == model.AcademicYearId);
         if (exists)
         {
-            ModelState.AddModelError("", "Student is already enrolled in this class for the selected year.");
+            ModelState.AddModelError("", "Student already has an enrollment record in this class for the selected year.");
             await PopulateDropdownsAsync(model);
             return View(model);
         }

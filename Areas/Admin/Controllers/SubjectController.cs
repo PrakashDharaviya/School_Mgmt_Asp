@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolEduERP.Data;
+using SchoolEduERP.Helpers;
 using SchoolEduERP.Models.Domain;
 using SchoolEduERP.Areas.Admin.Models;
 
@@ -12,13 +13,30 @@ namespace SchoolEduERP.Areas.Admin.Controllers;
 public class SubjectController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private const int PageSize = 10;
 
     public SubjectController(ApplicationDbContext context) => _context = context;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? standard, string? search, int page = 1)
     {
-        var subjects = await _context.Subjects.Include(s => s.Teacher).OrderBy(s => s.Standard).ThenBy(s => s.Name).ToListAsync();
-        return View(subjects);
+        var query = _context.Subjects.Include(s => s.Teacher).AsQueryable();
+
+        if (standard.HasValue)
+            query = query.Where(s => s.Standard == standard.Value);
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(s => s.Name.Contains(search) || (s.Code != null && s.Code.Contains(search)));
+
+        var ordered = query.OrderBy(s => s.Standard).ThenBy(s => s.Name);
+        var paged   = await PaginatedList<Subject>.CreateAsync(ordered, page, PageSize);
+
+        var allStandards = await _context.Subjects
+            .Select(s => s.Standard).Distinct().OrderBy(s => s).ToListAsync();
+
+        ViewBag.Standards       = allStandards;
+        ViewBag.SelectedStandard = standard;
+        ViewBag.SearchTerm      = search;
+
+        return View(paged);
     }
 
     [HttpGet]
@@ -63,7 +81,15 @@ public class SubjectController : Controller
             return View(model);
         }
 
-        _context.Subjects.Update(model);
+        var existing = await _context.Subjects.FindAsync(model.Id);
+        if (existing == null) return NotFound();
+
+        // Update only changed fields to preserve CreatedAt and other audit fields
+        existing.Standard = model.Standard;
+        existing.Name = model.Name;
+        existing.Code = model.Code;
+        existing.TeacherId = model.TeacherId;
+
         await _context.SaveChangesAsync();
         TempData["Success"] = "Subject updated.";
         return RedirectToAction(nameof(Index));

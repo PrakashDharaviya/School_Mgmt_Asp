@@ -101,9 +101,10 @@ public class ProfileController : Controller
         if (student == null) return NotFound();
 
         var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
+        var activeYearId = activeYear?.Id ?? 0;
         var enrollment = await _context.Enrollments
             .Include(e => e.ClassSection)
-            .FirstOrDefaultAsync(e => e.StudentId == id && e.AcademicYearId == (activeYear != null ? activeYear.Id : 1) && e.IsActive);
+            .FirstOrDefaultAsync(e => e.StudentId == id && e.AcademicYearId == activeYearId && e.IsActive);
 
         var marks = await _context.MarkEntries
             .Include(m => m.Exam)
@@ -131,7 +132,7 @@ public class ProfileController : Controller
 
         var gpa = markLines.Any() ? Math.Round(markLines.Average(m => m.GradePoint), 2) : 0;
 
-        var totalDue = await _context.FeeHeads.Where(f => f.IsActive && f.AcademicYearId == (activeYear != null ? activeYear.Id : 1)).SumAsync(f => f.Amount);
+        var totalDue = await _context.FeeHeads.Where(f => f.IsActive && f.AcademicYearId == activeYearId).SumAsync(f => f.Amount);
         var totalPaid = await _context.FeePayments.Where(p => p.StudentId == id && p.Status == "Completed").SumAsync(p => p.AmountPaid);
 
         var model = new StudentProfileViewModel

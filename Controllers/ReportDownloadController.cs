@@ -24,10 +24,12 @@ public class ReportDownloadController : Controller
     public async Task<IActionResult> StudentReportCard(int studentId)
     {
         var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
+        if (activeYear == null) return NotFound("No active academic year set.");
+
         var enrollment = await _context.Enrollments
             .Include(e => e.Student)
             .Include(e => e.ClassSection)
-            .FirstOrDefaultAsync(e => e.StudentId == studentId && e.AcademicYearId == (activeYear != null ? activeYear.Id : 1) && e.IsActive);
+            .FirstOrDefaultAsync(e => e.StudentId == studentId && e.AcademicYearId == activeYear.Id && e.IsActive);
 
         if (enrollment == null) return NotFound("Student enrollment not found.");
 

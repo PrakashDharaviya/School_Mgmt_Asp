@@ -1,8 +1,13 @@
-@model IEnumerable<SchoolEduERP.Models.Domain.Subject>
+@model SchoolEduERP.Helpers.PaginatedList<SchoolEduERP.Models.Domain.Subject>
+@using Microsoft.AspNetCore.Routing
 @{
     ViewData["Title"] = "Subjects";
     ViewData["UserRole"] = "Admin";
-    var grouped = Model.OrderBy(s => s.Standard).ThenBy(s => s.Name).GroupBy(s => s.Standard);
+    var standards       = ViewBag.Standards as List<int> ?? new List<int>();
+    var selectedStd     = ViewBag.SelectedStandard as int?;
+    var searchTerm      = ViewBag.SearchTerm as string ?? "";
+    var routeVals       = new RouteValueDictionary(new { standard = selectedStd, search = searchTerm });
+    ViewData["RouteValues"] = routeVals;
 }
 
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -13,6 +18,31 @@
     <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center gap-2 w-fit">
         <span class="material-symbols-outlined text-[20px]">add</span> Add Subject
     </a>
+</div>
+
+@* Filter bar *@
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
+    <form method="get" class="flex flex-wrap items-end gap-4">
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Standard</label>
+            <select name="standard" class="rounded-lg border-slate-200 bg-slate-50 text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[140px]">
+                <option value="">All Standards</option>
+                @foreach (var s in standards)
+                {
+                    <option value="@s" selected="@(selectedStd == s)">Standard @s</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Search</label>
+            <input name="search" value="@searchTerm" placeholder="Subject name or code…"
+                   class="rounded-lg border-slate-200 bg-slate-50 text-sm py-2 px-3 focus:ring-primary focus:border-primary min-w-[200px]" />
+        </div>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-primary/90">
+            <span class="material-symbols-outlined !text-[16px] align-middle mr-1">search</span> Search
+        </button>
+        <a asp-action="Index" class="text-sm text-slate-500 hover:text-primary font-medium px-3 py-2">Clear</a>
+    </form>
 </div>
 
 <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -28,7 +58,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                @foreach (var s in Model.OrderBy(x => x.Standard).ThenBy(x => x.Name))
+                @foreach (var s in Model)
                 {
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-surface-dark-hover/50 transition-colors">
                         <td class="px-6 py-4">
@@ -71,10 +101,14 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">No subjects found.</td>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">search_off</span>
+                            <span class="text-slate-400 dark:text-slate-500">No subjects match your filters.</span>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+    @await Html.PartialAsync("_Pagination", Model)
 </div>

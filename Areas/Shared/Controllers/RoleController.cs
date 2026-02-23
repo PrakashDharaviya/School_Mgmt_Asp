@@ -106,7 +106,7 @@ public class RoleController : Controller
                 var names = (model.FullName ?? "").Split(' ', 2);
                 var first = names.Length > 0 ? names[0] : model.FullName;
                 var last = names.Length > 1 ? names[1] : string.Empty;
-                var admissionNumber = $"ADM-{DateTime.UtcNow:yyyyMMddHHmmss}";
+                var admissionNumber = $"ADM-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N")[..4].ToUpper()}";
 
                 var studentEntity = new SchoolEduERP.Models.Domain.Student
                 {

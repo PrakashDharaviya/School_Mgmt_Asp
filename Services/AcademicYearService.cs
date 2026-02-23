@@ -27,10 +27,12 @@ public class AcademicYearService : IAcademicYearService
     public async Task SetActiveYearAsync(int yearId)
     {
         var allYears = await _context.AcademicYears.ToListAsync();
-        foreach (var y in allYears) y.IsActive = false;
-
         var target = allYears.FirstOrDefault(a => a.Id == yearId);
-        if (target != null) target.IsActive = true;
+        if (target == null)
+            throw new InvalidOperationException($"Academic year with Id {yearId} not found.");
+
+        foreach (var y in allYears) y.IsActive = false;
+        target.IsActive = true;
 
         await _context.SaveChangesAsync();
     }

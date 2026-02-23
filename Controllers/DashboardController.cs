@@ -29,13 +29,16 @@ public class DashboardController : Controller
     public async Task<IActionResult> Index()
     {
         var user = await _userManager.GetUserAsync(User);
-        var roles = user != null ? await _userManager.GetRolesAsync(user) : new List<string>();
+        if (user == null)
+            return RedirectToAction("Login", "Account");
+
+        var roles = await _userManager.GetRolesAsync(user);
         var role = roles.FirstOrDefault() ?? "Student";
         var activeYear = await _academicYearService.GetActiveYearAsync();
 
         if (role == "Student")
         {
-            return await BuildStudentDashboard(user!, activeYear);
+            return await BuildStudentDashboard(user, activeYear);
         }
 
         var model = new DashboardViewModel
@@ -46,9 +49,9 @@ public class DashboardController : Controller
             FeeCollected = await _context.FeePayments
                 .Where(p => p.Status == "Completed")
                 .SumAsync(p => p.AmountPaid),
-            FeeOverdue = await GetOverdueFeeAmountAsync(),
-            TodayClasses = 28,
-            TotalClasses = 32,
+            FeeOverdue = await GetOverdueFeeAmountAsync(activeYear),
+            TodayClasses = await _context.ClassSections.CountAsync(),
+            TotalClasses = await _context.ClassSections.CountAsync(),
             ActiveAcademicYear = activeYear?.Name ?? "N/A",
             UserRole = role,
             UserName = user?.FullName ?? "User"
@@ -99,11 +102,29 @@ public class DashboardController : Controller
         return total > 0 ? Math.Round((decimal)present / total * 100, 1) : 0;
     }
 
-    private async Task<decimal> GetOverdueFeeAmountAsync()
+    private async Task<decimal> GetOverdueFeeAmountAsync(AcademicYear? activeYear)
     {
+        if (activeYear == null) return 0;
+
+        // Get overdue fee heads for active year
         var overdueFees = await _context.FeeHeads
-            .Where(f => f.DueDate < DateTime.UtcNow && f.IsActive)
-            .SumAsync(f => f.Amount);
-        return overdueFees;
+            .Where(f => f.DueDate < DateTime.UtcNow && f.IsActive && f.AcademicYearId == activeYear.Id)
+            .ToListAsync();
+
+        decimal totalOverdue = 0;
+        foreach (var fee in overdueFees)
+        {
+            // Count enrolled students for this year
+            var enrolledCount = await _context.Enrollments
+                .CountAsync(e => e.AcademicYearId == activeYear.Id && e.IsActive);
+            var totalExpected = fee.Amount * enrolledCount;
+            var totalPaid = await _context.FeePayments
+                .Where(p => p.FeeHeadId == fee.Id && p.Status == "Completed")
+                .SumAsync(p => p.AmountPaid);
+            var unpaid = totalExpected - totalPaid;
+            if (unpaid > 0) totalOverdue += unpaid;
+        }
+
+        return totalOverdue;
     }
 }

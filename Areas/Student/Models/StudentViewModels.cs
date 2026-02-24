@@ -27,6 +27,7 @@ public class AdmissionViewModel
     [Required]
     [Display(Name = "Date of Birth")]
     [DataType(DataType.Date)]
+    [CustomValidation(typeof(AdmissionViewModel), nameof(ValidateDateOfBirth))]
     public DateTime DateOfBirth { get; set; }
 
     public string? Gender { get; set; }
@@ -53,8 +54,14 @@ public class AdmissionViewModel
     [Display(Name = "Roll Number")]
     public int RollNumber { get; set; }
 
+    [Display(Name = "Stream / Course")]
+    public int? CourseId { get; set; }
+
     // Display
     public string? ClassName { get; set; }
+
+    // Dropdown for courses (Science, Commerce, etc.) – only for Std 11 & 12
+    public List<CourseListItem> Courses { get; set; } = new();
 
     // ── Login Credentials (set once on admission; leave blank if no login needed) ──
     [Display(Name = "Login Password")]
@@ -70,6 +77,23 @@ public class AdmissionViewModel
     // Dropdown lists
     public List<ClassSectionListItem> ClassSections { get; set; } = new();
     public List<AcademicYearListItem> AcademicYears { get; set; } = new();
+
+    // DOB validation: student must be between 3 and 25 years old
+    public static ValidationResult? ValidateDateOfBirth(DateTime dob, ValidationContext context)
+    {
+        if (dob >= DateTime.Today)
+            return new ValidationResult("Date of Birth cannot be today or in the future.");
+
+        var age = DateTime.Today.Year - dob.Year;
+        if (dob.Date > DateTime.Today.AddYears(-age)) age--;
+
+        if (age < 3)
+            return new ValidationResult("Student must be at least 3 years old.");
+        if (age > 25)
+            return new ValidationResult("Date of Birth indicates age over 25. Please verify.");
+
+        return ValidationResult.Success;
+    }
 }
 
 public class EnrollmentViewModel

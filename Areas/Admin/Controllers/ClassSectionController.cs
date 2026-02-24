@@ -22,10 +22,11 @@ public class ClassSectionController : Controller
             .ThenBy(c => c.Section)
             .ToList();
 
-        // Get active year
-        var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
+        // Get active year (fall back to the latest year if none is active)
+        var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive)
+                      ?? await _context.AcademicYears.OrderByDescending(a => a.Id).FirstOrDefaultAsync();
 
-        // Count enrolled students per class section in active year
+        // Count enrolled students per class section
         var enrollmentCounts = new Dictionary<int, int>();
         if (activeYear != null)
         {
@@ -114,7 +115,7 @@ public class ClassSectionController : Controller
         var hasEnrollments = await _context.Enrollments.AnyAsync(e => e.ClassSectionId == id && e.IsActive);
         if (hasEnrollments)
         {
-            TempData["Error"] = "Cannot delete � active enrollments exist for this class.";
+            TempData["Error"] = "Cannot delete - active enrollments exist for this class.";
             return RedirectToAction(nameof(Index));
         }
 

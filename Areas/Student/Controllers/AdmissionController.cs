@@ -144,7 +144,12 @@ public class AdmissionController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        var model = new AdmissionViewModel { AdmissionDate = DateTime.Today };
+        var activeYear = await _context.AcademicYears.FirstOrDefaultAsync(a => a.IsActive);
+        var model = new AdmissionViewModel
+        {
+            AdmissionDate = DateTime.Today,
+            AcademicYearId = activeYear?.Id ?? 0
+        };
         await PopulateClassDropdowns(model);
         return View(model);
     }
@@ -236,6 +241,7 @@ public class AdmissionController : Controller
                 StudentId = student.Id,
                 ClassSectionId = model.ClassSectionId,
                 AcademicYearId = model.AcademicYearId,
+                CourseId = model.CourseId > 0 ? model.CourseId : null,
                 RollNumber = maxRoll + 1,
                 IsActive = true
             };
@@ -276,7 +282,8 @@ public class AdmissionController : Controller
             AdmissionDate = student.AdmissionDate,
             ClassSectionId = enrollment?.ClassSectionId ?? 0,
             AcademicYearId = enrollment?.AcademicYearId ?? (activeYear?.Id ?? 0),
-            RollNumber = enrollment?.RollNumber ?? 0
+            RollNumber = enrollment?.RollNumber ?? 0,
+            CourseId = enrollment?.CourseId
         };
 
         await PopulateClassDropdowns(model);
@@ -317,6 +324,7 @@ public class AdmissionController : Controller
             if (enrollment != null)
             {
                 enrollment.ClassSectionId = model.ClassSectionId;
+                enrollment.CourseId = model.CourseId > 0 ? model.CourseId : null;
                 if (model.RollNumber > 0) enrollment.RollNumber = model.RollNumber;
             }
             else
@@ -330,6 +338,7 @@ public class AdmissionController : Controller
                     StudentId = model.Id,
                     ClassSectionId = model.ClassSectionId,
                     AcademicYearId = model.AcademicYearId,
+                    CourseId = model.CourseId > 0 ? model.CourseId : null,
                     RollNumber = model.RollNumber > 0 ? model.RollNumber : maxRoll + 1,
                     IsActive = true
                 });
@@ -371,6 +380,11 @@ public class AdmissionController : Controller
         model.AcademicYears = await _context.AcademicYears
             .OrderByDescending(a => a.IsActive)
             .Select(a => new AcademicYearListItem { Id = a.Id, Name = a.Name })
+            .ToListAsync();
+
+        model.Courses = await _context.Courses
+            .OrderBy(c => c.Name)
+            .Select(c => new CourseListItem { Id = c.Id, Name = c.Name })
             .ToListAsync();
     }
 }

@@ -1,0 +1,100 @@
+@model IEnumerable<SchoolEduERP.Models.Domain.Course>
+@{
+    ViewData["Title"] = "Streams / Courses";
+    ViewData["UserRole"] = "Admin";
+    var enrollmentCounts = ViewBag.EnrollmentCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
+}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+        <h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Streams / Courses</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Manage streams like Science, Commerce, Arts — applicable for Std 11 &amp; 12.</p>
+    </div>
+    <a asp-action="Create" class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all">
+        <span class="material-symbols-outlined text-xl">add</span> Add Stream
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-12 text-center">
+        <div class="h-16 w-16 rounded-full bg-slate-100 dark:bg-surface-dark-hover flex items-center justify-center mx-auto mb-4">
+            <span class="material-symbols-outlined text-3xl text-slate-400">library_books</span>
+        </div>
+        <h3 class="text-lg font-bold text-slate-600 dark:text-slate-300 mb-2">No Streams/Courses Yet</h3>
+        <p class="text-slate-400 text-sm mb-6">Add streams like Science, Commerce, or Arts to assign to students in Std 11 &amp; 12.</p>
+        <a asp-action="Create" class="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+            <span class="material-symbols-outlined text-lg">add</span> Add First Stream
+        </a>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var course in Model)
+        {
+            var count = enrollmentCounts.ContainsKey(course.Id) ? enrollmentCounts[course.Id] : 0;
+            <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700/50 p-6 group hover:border-primary/30 transition-all">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">library_books</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(course.Code))
+                    {
+                        <span class="bg-slate-100 dark:bg-surface-dark-hover text-slate-600 dark:text-slate-400 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">@course.Code</span>
+                    }
+                </div>
+
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">@course.Name</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    @if (course.Teacher != null)
+                    {
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined !text-[14px]">person</span>
+                            @course.Teacher.FirstName @course.Teacher.LastName
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="text-slate-400">No teacher assigned</span>
+                    }
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="bg-slate-50 dark:bg-surface-dark-hover p-3 rounded-xl">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-0.5">Students</p>
+                        <p class="text-lg font-bold text-slate-700 dark:text-slate-200">@count</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-surface-dark-hover p-3 rounded-xl">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-0.5">Credits</p>
+                        <p class="text-lg font-bold text-slate-700 dark:text-slate-200">@course.Credits</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@course.Id"
+                       class="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-surface-dark-hover transition-all">
+                        <span class="material-symbols-outlined text-base">edit</span> Edit
+                    </a>
+                    <form asp-action="Delete" method="post" class="flex-1">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@course.Id" />
+                        <button type="submit" onclick="return confirm('Delete stream @course.Name?')"
+                                class="w-full flex items-center justify-center gap-1 py-2.5 rounded-xl border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 transition-all">
+                            <span class="material-symbols-outlined text-base">delete</span> Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        <!-- Add New Placeholder -->
+        <a asp-action="Create" class="border-2 border-dashed border-slate-200 dark:border-slate-600 rounded-2xl p-6 flex flex-col items-center justify-center text-center group cursor-pointer hover:border-primary/40 transition-colors min-h-[220px]">
+            <div class="h-14 w-14 rounded-full bg-slate-100 dark:bg-surface-dark-hover flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-all mb-4">
+                <span class="material-symbols-outlined text-3xl">add</span>
+            </div>
+            <h4 class="font-bold text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white">Add New Stream</h4>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">e.g. Science, Commerce, Arts</p>
+        </a>
+    </div>
+}

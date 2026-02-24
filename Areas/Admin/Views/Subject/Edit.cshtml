@@ -1,32 +1,177 @@
 @model SchoolEduERP.Models.Domain.Subject
 @{
     ViewData["Title"] = "Edit Subject";
+    ViewData["UserRole"] = "Admin";
 }
 
-<form asp-action="Edit" method="post" class="max-w-xl bg-white p-6 rounded-lg shadow">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-    <div class="mb-4">
-        <label class="block text-sm font-medium">Standard</label>
-        <input asp-for="Standard" class="w-full rounded border px-3 py-2" />
-        <span asp-validation-for="Standard" class="text-red-600 text-xs"></span>
-    </div>
-    <div class="mb-4">
-        <label class="block text-sm font-medium">Name</label>
-        <input asp-for="Name" class="w-full rounded border px-3 py-2" />
-        <span asp-validation-for="Name" class="text-red-600 text-xs"></span>
-    </div>
-    <div class="mb-4">
-        <label class="block text-sm font-medium">Teacher</label>
-        <select asp-for="TeacherId" class="w-full rounded border px-3 py-2">
-            <option value="">-- Select Teacher --</option>
-            @foreach (var t in (IEnumerable<SchoolEduERP.Models.Domain.Teacher>)ViewBag.Teachers)
-            {
-                <option value="@t.Id" selected="@((Model.TeacherId==t.Id))">@t.FirstName @t.LastName</option>
+<div class="mb-8">
+    <nav class="flex mb-2 text-sm text-slate-500">
+        <ol class="flex items-center space-x-2">
+            <li><a asp-action="Index" class="hover:text-primary">Subjects</a></li>
+            <li><span class="material-symbols-outlined text-sm">chevron_right</span></li>
+            <li class="text-primary font-medium">Edit Subject</li>
+        </ol>
+    </nav>
+    <h2 class="text-3xl font-extrabold text-slate-900 dark:text-white">Edit Subject</h2>
+    <p class="text-slate-500 dark:text-slate-400 mt-1">Update subject details, standard, or assigned teacher.</p>
+</div>
+
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/50 p-6 md:p-8 max-w-2xl">
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm bg-red-50 p-3 rounded-lg mb-4"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="space-y-2">
+                <label asp-for="Standard" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Standard</label>
+                <select asp-for="Standard" id="standardSelect"
+                        class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-3">
+                    <option value="0">-- Select Standard --</option>
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" selected="@(Model.Standard == i)">Std @i</option>
+                    }
+                </select>
+                <span asp-validation-for="Standard" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="space-y-2" id="subjectNameWrapper">
+                <label asp-for="Name" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Subject Name</label>
+                <select id="subjectSelect"
+                        class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-3">
+                    <option value="">-- Select Standard First --</option>
+                </select>
+                <input asp-for="Name" type="hidden" id="subjectName" />
+                <span asp-validation-for="Name" class="text-red-500 text-xs"></span>
+            </div>
+
+            <div class="space-y-2">
+                <label asp-for="Code" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Subject Code (optional)</label>
+                <input asp-for="Code" class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-3"
+                       placeholder="e.g. MAT, SCI" />
+            </div>
+
+            <div class="space-y-2">
+                <label asp-for="TeacherId" class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Teacher (optional)</label>
+                <select asp-for="TeacherId"
+                        class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-3">
+                    <option value="">-- Select Teacher --</option>
+                    @foreach (var t in (IEnumerable<SchoolEduERP.Models.Domain.Teacher>)ViewBag.Teachers)
+                    {
+                        <option value="@t.Id" selected="@(Model.TeacherId == t.Id)">@t.FirstName @t.LastName</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a asp-action="Index" class="px-6 py-2.5 rounded-lg text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors">Cancel</a>
+            <button type="submit"
+                    class="flex items-center gap-2 px-8 py-2.5 rounded-lg bg-primary text-white font-bold text-sm shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+                <span class="material-symbols-outlined text-sm">save</span> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        (function () {
+            var currentName = '@Html.Raw(Model.Name)';
+
+            var subjects1to5  = ['English', 'Hindi', 'Mathematics', 'EVS (Environmental Studies)', 'Computer Science', 'Physical Education', 'Art & Craft', 'Moral Science', 'General Knowledge'];
+            var subjects6to8  = ['English', 'Hindi', 'Mathematics', 'Science', 'Social Science', 'Sanskrit', 'Computer Science', 'Physical Education', 'Art & Craft', 'Moral Science'];
+            var subjects9to10 = ['English', 'Hindi', 'Mathematics', 'Science', 'Social Science', 'Sanskrit', 'Computer Science', 'Physical Education', 'Information Technology'];
+            var subjects11_12 = ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'Computer Science', 'English', 'Physical Education',
+                'Information Practices', 'Accountancy', 'Business Studies', 'Economics', 'Informatics Practices',
+                'History', 'Political Science', 'Geography', 'Sociology', 'Psychology', 'Hindi'].sort();
+
+            var map = {};
+            for (var i = 1; i <= 5; i++)  map[i] = subjects1to5;
+            for (var i = 6; i <= 8; i++)  map[i] = subjects6to8;
+            for (var i = 9; i <= 10; i++) map[i] = subjects9to10;
+            map[11] = subjects11_12;
+            map[12] = subjects11_12;
+
+            var stdSel = document.getElementById('standardSelect');
+            var subSel = document.getElementById('subjectSelect');
+            var nameIn = document.getElementById('subjectName');
+            var wrapper = document.getElementById('subjectNameWrapper');
+
+            function rebuild(preserveValue) {
+                var s = parseInt(stdSel.value) || 0;
+                var list = map[s] || [];
+
+                var old = document.getElementById('customSubjectInput');
+                var oldBtn = document.getElementById('backToListBtn');
+                if (old) old.remove();
+                if (oldBtn) oldBtn.remove();
+                subSel.style.display = '';
+
+                subSel.innerHTML = '';
+                if (s === 0) {
+                    subSel.innerHTML = '<option value="">-- Select Standard First --</option>';
+                    nameIn.value = '';
+                    return;
+                }
+                subSel.innerHTML = '<option value="">-- Choose Subject --</option>';
+                var found = false;
+                list.forEach(function (n) {
+                    var o = document.createElement('option');
+                    o.value = n; o.textContent = n;
+                    if (preserveValue && n === preserveValue) { o.selected = true; found = true; }
+                    subSel.appendChild(o);
+                });
+                var oth = document.createElement('option');
+                oth.value = '__other__'; oth.textContent = '+ Other (type custom)';
+                subSel.appendChild(oth);
+
+                if (preserveValue && !found && preserveValue !== '') {
+                    // Current name isn't in the list - show custom input
+                    showCustom(preserveValue);
+                }
+
+                nameIn.value = preserveValue || subSel.value;
             }
-        </select>
-    </div>
-    <div class="text-right">
-        <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Save</button>
-    </div>
-</form>
+
+            function showCustom(val) {
+                var txt = document.createElement('input');
+                txt.type = 'text'; txt.id = 'customSubjectInput';
+                txt.placeholder = 'Enter custom subject name';
+                txt.className = subSel.className;
+                txt.value = val || '';
+                txt.addEventListener('input', function () { nameIn.value = txt.value; });
+                wrapper.insertBefore(txt, subSel);
+                subSel.style.display = 'none';
+                nameIn.value = val || '';
+                var back = document.createElement('button');
+                back.type = 'button'; back.id = 'backToListBtn';
+                back.textContent = 'Back to list';
+                back.className = 'text-xs text-primary font-semibold mt-1 hover:underline cursor-pointer';
+                back.addEventListener('click', function () {
+                    txt.remove(); back.remove();
+                    subSel.style.display = '';
+                    subSel.value = '';
+                    nameIn.value = '';
+                });
+                wrapper.insertBefore(back, subSel.nextSibling);
+            }
+
+            subSel.addEventListener('change', function () {
+                if (subSel.value === '__other__') {
+                    showCustom('');
+                    document.getElementById('customSubjectInput').focus();
+                } else {
+                    nameIn.value = subSel.value;
+                }
+            });
+
+            stdSel.addEventListener('change', function () { rebuild(''); });
+
+            // Initial load: populate with existing model value
+            rebuild(currentName);
+        })();
+    </script>
+}

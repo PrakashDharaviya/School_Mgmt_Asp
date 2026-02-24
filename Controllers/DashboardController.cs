@@ -35,6 +35,11 @@ public class DashboardController : Controller
         var roles = await _userManager.GetRolesAsync(user);
         var role = roles.FirstOrDefault() ?? "Student";
         var activeYear = await _academicYearService.GetActiveYearAsync();
+        if (activeYear == null)
+        {
+            var allYears = await _academicYearService.GetAllYearsAsync();
+            activeYear = allYears.FirstOrDefault();
+        }
 
         if (role == "Student")
         {

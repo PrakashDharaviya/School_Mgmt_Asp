@@ -66,6 +66,14 @@ public class FeePaymentController : Controller
             .OrderByDescending(p => p.PaymentDate)
             .ToListAsync();
 
+        // Get student's class from enrollment
+        var studentEnrollment = await _context.Enrollments
+            .Include(e => e.ClassSection)
+            .FirstOrDefaultAsync(e => e.StudentId == selectedStudent.Id && e.AcademicYearId == yearId && e.IsActive);
+        var className = studentEnrollment != null
+            ? $"{studentEnrollment.ClassSection.ClassName}-{studentEnrollment.ClassSection.Section}"
+            : "N/A";
+
         var totalPaid = payments.Where(p => p.Status == "Completed").Sum(p => p.AmountPaid);
         var totalDue = feeHeads.Sum(f => f.Amount);
 
@@ -73,19 +81,23 @@ public class FeePaymentController : Controller
         {
             StudentId = selectedStudent.Id,
             StudentName = $"{selectedStudent.FirstName} {selectedStudent.LastName}",
-            ClassName = "",
+            ClassName = className,
             TotalDue = totalDue,
             TotalPaid = totalPaid,
             Balance = totalDue - totalPaid,
-            FeeSchedule = feeHeads.Select(f => new FeeScheduleItem
+            FeeSchedule = feeHeads.Select(f =>
             {
-                FeeHeadId = f.Id,
-                FeeName = f.Name,
-                Amount = f.Amount,
-                DueDate = f.DueDate,
-                AmountPaid = payments.Where(p => p.FeeHeadId == f.Id && p.Status == "Completed").Sum(p => p.AmountPaid),
-                Status = payments.Any(p => p.FeeHeadId == f.Id && p.Status == "Completed" && p.AmountPaid >= f.Amount)
-                    ? "Paid" : f.DueDate < DateTime.UtcNow ? "Overdue" : "Pending"
+                var paidForHead = payments.Where(p => p.FeeHeadId == f.Id && p.Status == "Completed").Sum(p => p.AmountPaid);
+                return new FeeScheduleItem
+                {
+                    FeeHeadId = f.Id,
+                    FeeName = f.Name,
+                    Amount = f.Amount,
+                    DueDate = f.DueDate,
+                    AmountPaid = paidForHead,
+                    Status = paidForHead >= f.Amount ? "Paid"
+                        : f.DueDate < DateTime.UtcNow ? "Overdue" : "Pending"
+                };
             }).ToList(),
             RecentPayments = payments.Take(10).Select(p => new FeePaymentItem
             {

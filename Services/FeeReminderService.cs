@@ -42,16 +42,18 @@ public class FeeReminderService : IFeeReminderService
         var overdueFees = await GetOverdueFeeHeadsAsync();
         var upcomingFees = await GetUpcomingDuesAsync();
 
-        // Get students who haven't paid overdue fees
+        // Get students who haven't fully paid overdue fees
         foreach (var fee in overdueFees)
         {
-            var paidStudentIds = await _context.FeePayments
+            // Get students who have fully paid (sum of completed payments >= fee amount)
+            var fullyPaidStudentIds = await _context.FeePayments
                 .Where(p => p.FeeHeadId == fee.Id && p.Status == "Completed")
-                .Select(p => p.StudentId)
+                .GroupBy(p => p.StudentId)
+                .Where(g => g.Sum(p => p.AmountPaid) >= fee.Amount)
+                .Select(g => g.Key)
                 .ToListAsync();
 
-            // Filter students by applicable class if specified
-            IQueryable<Student> studentQuery = _context.Students.Where(s => s.IsActive && !paidStudentIds.Contains(s.Id));
+            IQueryable<Student> studentQuery = _context.Students.Where(s => s.IsActive && !fullyPaidStudentIds.Contains(s.Id));
             if (!string.IsNullOrWhiteSpace(fee.ApplicableClass))
             {
                 var applicableStudentIds = await _context.Enrollments
@@ -86,13 +88,15 @@ public class FeeReminderService : IFeeReminderService
         // Upcoming fee reminders
         foreach (var fee in upcomingFees)
         {
-            var paidStudentIds = await _context.FeePayments
+            var fullyPaidUpcomingIds = await _context.FeePayments
                 .Where(p => p.FeeHeadId == fee.Id && p.Status == "Completed")
-                .Select(p => p.StudentId)
+                .GroupBy(p => p.StudentId)
+                .Where(g => g.Sum(p => p.AmountPaid) >= fee.Amount)
+                .Select(g => g.Key)
                 .ToListAsync();
 
             // Filter students by applicable class if specified for upcoming fees
-            IQueryable<Student> upcomingStudentQuery = _context.Students.Where(s => s.IsActive && !paidStudentIds.Contains(s.Id));
+            IQueryable<Student> upcomingStudentQuery = _context.Students.Where(s => s.IsActive && !fullyPaidUpcomingIds.Contains(s.Id));
             if (!string.IsNullOrWhiteSpace(fee.ApplicableClass))
             {
                 var applicableStudentIds = await _context.Enrollments

@@ -95,12 +95,73 @@ public class ReportViewModel
     public List<GpaDistributionItem> GpaDistribution { get; set; } = new();
 
     public string ActiveAcademicYear { get; set; } = string.Empty;
+
+    // ── Tab 1: Student Performance ────────────────
+    public int TotalStudents { get; set; }
+    public int PassCount { get; set; }
+    public int FailCount { get; set; }
+    public decimal HighestGpa { get; set; }
+    public decimal LowestGpa { get; set; }
+    public List<TopStudentItem> TopStudents { get; set; } = new();
+
+    // ── Tab 2: Fee Analytics ──────────────────────
+    public List<FeeHeadBreakdownItem> FeeBreakdown { get; set; } = new();
+    public int TotalPayments { get; set; }
+    public int PaidStudentCount { get; set; }
+    public int UnpaidStudentCount { get; set; }
+
+    // ── Tab 3: Attendance Trends ──────────────────
+    public List<ClassAttendanceItem> ClassAttendance { get; set; } = new();
+    public int TotalWorkingDays { get; set; }
+
+    // ── Tab 4: Exam Results ──────────────────────
+    public List<ExamResultSummaryItem> ExamResults { get; set; } = new();
 }
 
 // Helper dropdowns and items
 public class AcademicYearDropdown { public int Id { get; set; } public string Name { get; set; } = string.Empty; }
 public class TeacherDropdown { public int Id { get; set; } public string Name { get; set; } = string.Empty; }
 public class GpaDistributionItem { public string Range { get; set; } = string.Empty; public int Count { get; set; } }
+
+public class TopStudentItem
+{
+    public string StudentName { get; set; } = string.Empty;
+    public string ClassName { get; set; } = string.Empty;
+    public int RollNumber { get; set; }
+    public decimal Gpa { get; set; }
+    public string Grade { get; set; } = string.Empty;
+}
+
+public class FeeHeadBreakdownItem
+{
+    public string FeeName { get; set; } = string.Empty;
+    public decimal Amount { get; set; }
+    public decimal Collected { get; set; }
+    public decimal Pending { get; set; }
+    public decimal CollectionRate { get; set; }
+    public string DueDate { get; set; } = string.Empty;
+}
+
+public class ClassAttendanceItem
+{
+    public string ClassName { get; set; } = string.Empty;
+    public int TotalStudents { get; set; }
+    public int PresentToday { get; set; }
+    public int AbsentToday { get; set; }
+    public decimal AttendanceRate { get; set; }
+}
+
+public class ExamResultSummaryItem
+{
+    public string ExamName { get; set; } = string.Empty;
+    public string CourseName { get; set; } = string.Empty;
+    public int TotalStudents { get; set; }
+    public decimal Average { get; set; }
+    public decimal Highest { get; set; }
+    public decimal Lowest { get; set; }
+    public decimal PassRate { get; set; }
+    public int TotalMarks { get; set; }
+}
 
 // ── Teacher Management ────────────────────────────────────────────────
 public class TeacherViewModel

@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Auto-kill running app before build so the exe is never locked -->
+  <Target Name="KillRunningApp" BeforeTargets="CoreCompile">
+    <Exec Command="taskkill /F /IM SchoolEduERP.exe >nul 2>&amp;1 || exit /b 0" IgnoreExitCode="true" />
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />

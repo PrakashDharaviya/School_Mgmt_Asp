@@ -26,6 +26,14 @@ public class AcademicYearController : Controller
         var years = await _context.AcademicYears.OrderByDescending(y => y.StartDate).ToListAsync();
         var activeYear = years.FirstOrDefault(y => y.IsActive);
 
+        // Batch load enrollment counts to avoid N+1
+        var yearIds = years.Select(y => y.Id).ToList();
+        var enrollmentCounts = await _context.Enrollments
+            .Where(e => yearIds.Contains(e.AcademicYearId) && e.IsActive)
+            .GroupBy(e => e.AcademicYearId)
+            .Select(g => new { YearId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.YearId, x => x.Count);
+
         var model = new AcademicYearListViewModel
         {
             Years = years.Select(y => new AcademicYearViewModel
@@ -35,7 +43,7 @@ public class AcademicYearController : Controller
                 StartDate = y.StartDate,
                 EndDate = y.EndDate,
                 IsActive = y.IsActive,
-                StudentCount = _context.Enrollments.Count(e => e.AcademicYearId == y.Id && e.IsActive)
+                StudentCount = enrollmentCounts.GetValueOrDefault(y.Id, 0)
             }).ToList(),
             ActiveYear = activeYear != null ? new AcademicYearViewModel
             {
@@ -44,7 +52,7 @@ public class AcademicYearController : Controller
                 StartDate = activeYear.StartDate,
                 EndDate = activeYear.EndDate,
                 IsActive = true,
-                StudentCount = await _context.Enrollments.CountAsync(e => e.AcademicYearId == activeYear.Id && e.IsActive)
+                StudentCount = enrollmentCounts.GetValueOrDefault(activeYear.Id, 0)
             } : null
         };
 
@@ -99,16 +107,16 @@ public class AcademicYearController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        year.Name = name;
-        year.StartDate = startDate;
-        year.EndDate = endDate;
-        year.UpdatedAt = DateTime.UtcNow;
-
         if (startDate >= endDate)
         {
             TempData["Error"] = "Start date must be before end date.";
             return RedirectToAction(nameof(Index));
         }
+
+        year.Name = name;
+        year.StartDate = startDate;
+        year.EndDate = endDate;
+        year.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
         TempData["Success"] = $"Academic year '{name}' updated successfully!";

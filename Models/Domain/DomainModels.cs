@@ -67,6 +67,9 @@ public class Student : AuditableEntity
 
     public bool IsActive { get; set; } = true;
 
+    [MaxLength(256)]
+    public string? Password { get; set; }
+
     public string? UserId { get; set; }
     [ForeignKey(nameof(UserId))]
     public ApplicationUser? User { get; set; }
@@ -105,6 +108,9 @@ public class Teacher : AuditableEntity
 
     public DateTime JoiningDate { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
+
+    [MaxLength(256)]
+    public string? Password { get; set; }
 
     public string? UserId { get; set; }
     [ForeignKey(nameof(UserId))]

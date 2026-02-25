@@ -118,6 +118,7 @@ public class TeacherController : Controller
             Qualification  = model.Qualification,
             JoiningDate    = model.JoiningDate,
             IsActive       = true,
+            Password       = model.Password,
             CreatedAt      = DateTime.UtcNow,
             UpdatedAt      = DateTime.UtcNow
         };
@@ -286,6 +287,73 @@ public class TeacherController : Controller
             TempData["Error"] = "Reset failed: " + string.Join("; ", result.Errors.Select(e => e.Description));
         }
 
+        return RedirectToAction(nameof(Edit), new { id });
+    }
+
+    // POST: /Admin/Teacher/CreateLoginAccount/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateLoginAccount(int id, string loginEmail, string loginPassword)
+    {
+        var teacher = await _context.Teachers.FindAsync(id);
+        if (teacher == null) return NotFound();
+
+        if (!string.IsNullOrEmpty(teacher.UserId))
+        {
+            TempData["Error"] = "This teacher already has a login account.";
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        if (string.IsNullOrWhiteSpace(loginEmail) || string.IsNullOrWhiteSpace(loginPassword))
+        {
+            TempData["Error"] = "Email and password are required to create a login account.";
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        // Check if email is already used by another Identity account
+        var existingUser = await _userManager.FindByEmailAsync(loginEmail);
+        if (existingUser != null)
+        {
+            // Link existing orphaned Identity account
+            teacher.UserId    = existingUser.Id;
+            teacher.Email     = loginEmail;
+            teacher.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Login account linked successfully!";
+        }
+        else
+        {
+            var appUser = new ApplicationUser
+            {
+                UserName       = loginEmail,
+                Email          = loginEmail,
+                FullName       = teacher.FirstName + " " + teacher.LastName,
+                RoleType       = "Teacher",
+                EmailConfirmed = true,
+                CreatedAt      = DateTime.UtcNow,
+                UpdatedAt      = DateTime.UtcNow
+            };
+
+            var result = await _userManager.CreateAsync(appUser, loginPassword);
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(appUser, "Teacher");
+                teacher.UserId    = appUser.Id;
+                teacher.Email     = loginEmail;
+                teacher.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Login account created successfully!";
+            }
+            else
+            {
+                var errors = string.Join(" | ", result.Errors.Select(e => e.Description));
+                TempData["Error"] = $"Could not create login account: {errors}";
+            }
+        }
+
+        _logger.LogInformation("Login account created for teacher {EmployeeId}", teacher.EmployeeId);
         return RedirectToAction(nameof(Edit), new { id });
     }
 

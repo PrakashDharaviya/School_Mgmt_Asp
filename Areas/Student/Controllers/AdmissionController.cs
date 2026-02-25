@@ -185,7 +185,8 @@ public class AdmissionController : Controller
             GuardianName = model.GuardianName,
             GuardianPhone = model.GuardianPhone,
             AdmissionDate = model.AdmissionDate,
-            IsActive = true
+            IsActive = true,
+            Password = model.Password
         };
 
         _context.Students.Add(student);

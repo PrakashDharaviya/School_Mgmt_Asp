@@ -108,7 +108,29 @@
         }
         else
         {
-            <p class="text-sm text-slate-400">This teacher does not have a portal login account. Add the teacher with an email and password to create one.</p>
+            <p class="text-sm text-slate-400 mb-4">This teacher does not have a portal login account. Create one below:</p>
+            <form asp-action="CreateLoginAccount" asp-area="Admin" asp-controller="Teacher" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
+                        <input name="loginEmail" type="email" required value="@Model.Email"
+                               class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-2 px-3"
+                               placeholder="teacher@school.com" autocomplete="email" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
+                        <input name="loginPassword" type="password" required
+                               class="w-full rounded-lg border-slate-200 bg-slate-50 focus:ring-primary focus:border-primary text-sm py-2 px-3"
+                               placeholder="Min 6 chars, 1 uppercase, 1 digit, 1 special" autocomplete="new-password" />
+                    </div>
+                </div>
+                <button type="submit"
+                        class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors">
+                    <span class="material-symbols-outlined !text-[16px] align-middle mr-1">person_add</span> Create Login Account
+                </button>
+            </form>
         }
     </div>
 </div>

@@ -36,7 +36,9 @@ public class ReportDownloadController : Controller
         var marks = await _context.MarkEntries
             .Include(m => m.Exam)
             .Include(m => m.Course)
-            .Where(m => m.StudentId == studentId)
+            .Where(m => m.StudentId == studentId
+                && m.Exam.ExamDate >= activeYear.StartDate
+                && m.Exam.ExamDate <= activeYear.EndDate)
             .ToListAsync();
 
         var totalDays = await _context.AttendanceRecords.CountAsync(a => a.StudentId == studentId);
@@ -116,6 +118,9 @@ public class ReportDownloadController : Controller
     [HttpGet]
     public async Task<IActionResult> AttendanceReport(int classSectionId, int month, int year)
     {
+        if (month < 1 || month > 12 || year < 2000 || year > 2100)
+            return BadRequest("Invalid month or year value.");
+
         var classSection = await _context.ClassSections.FindAsync(classSectionId);
         if (classSection == null) return NotFound();
 
@@ -179,14 +184,19 @@ public class ReportDownloadController : Controller
             .Where(m => m.ExamId == examId && m.CourseId == courseId)
             .ToListAsync();
 
+        // Batch load enrollments for all students in marks
+        var studentIds = marks.Select(m => m.StudentId).Distinct().ToList();
+        var enrollments = await _context.Enrollments
+            .Where(e => studentIds.Contains(e.StudentId) && e.IsActive)
+            .ToDictionaryAsync(e => e.StudentId, e => e.RollNumber);
+
         var results = new List<StudentResultItem>();
         foreach (var m in marks)
         {
-            var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == m.StudentId && e.IsActive);
             var (grade, gp) = _gpaService.GetGrade(m.MarksObtained, exam.TotalMarks);
             results.Add(new StudentResultItem
             {
-                RollNumber = enrollment?.RollNumber ?? 0,
+                RollNumber = enrollments.GetValueOrDefault(m.StudentId, 0),
                 StudentName = $"{m.Student.FirstName} {m.Student.LastName}",
                 MarksObtained = m.MarksObtained,
                 TotalMarks = exam.TotalMarks,

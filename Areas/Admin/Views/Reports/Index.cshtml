@@ -8,124 +8,390 @@
     </div>
 </div>
 
-<!-- Report Selector Cards -->
+<!-- ═══ Tab Selector Cards ═══ -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-    <div class="group relative flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm ring-2 ring-primary ring-offset-2 dark:ring-offset-background-dark transition-all">
+    <!-- Tab 1: Student Performance -->
+    <button onclick="switchTab('performance')" id="tab-performance"
+        class="tab-card group relative flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm ring-2 ring-primary ring-offset-2 dark:ring-offset-background-dark transition-all cursor-pointer">
         <div class="flex items-center justify-between">
-            <div class="rounded-xl bg-primary/10 p-3 text-primary"><span class="material-symbols-outlined text-[28px]">school</span></div>
-            <span class="material-symbols-outlined text-primary text-[24px]">check_circle</span>
+            <div class="tab-icon rounded-xl bg-primary/10 p-3 text-primary"><span class="material-symbols-outlined text-[28px]">school</span></div>
+            <span class="tab-check material-symbols-outlined text-primary text-[24px]">check_circle</span>
         </div>
         <div>
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Student Performance</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">GPA &amp; Exam Scores</p>
         </div>
-    </div>
-    <div class="group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
-        <div class="rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
-            <span class="material-symbols-outlined text-[28px]">payments</span>
+    </button>
+    <!-- Tab 2: Fee Analytics -->
+    <button onclick="switchTab('fees')" id="tab-fees"
+        class="tab-card group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div class="tab-icon rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                <span class="material-symbols-outlined text-[28px]">payments</span>
+            </div>
+            <span class="tab-check material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
         </div>
         <div>
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Fee Analytics</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Collections &amp; Dues</p>
         </div>
-    </div>
-    <div class="group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
-        <div class="rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
-            <span class="material-symbols-outlined text-[28px]">calendar_month</span>
+    </button>
+    <!-- Tab 3: Attendance Trends -->
+    <button onclick="switchTab('attendance')" id="tab-attendance"
+        class="tab-card group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div class="tab-icon rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
+                <span class="material-symbols-outlined text-[28px]">calendar_month</span>
+            </div>
+            <span class="tab-check material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
         </div>
         <div>
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Attendance Trends</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Daily &amp; Monthly Stats</p>
         </div>
-    </div>
-    <div class="group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
-        <div class="rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
-            <span class="material-symbols-outlined text-[28px]">assignment</span>
+    </button>
+    <!-- Tab 4: Exam Results -->
+    <button onclick="switchTab('exams')" id="tab-exams"
+        class="tab-card group flex flex-col gap-4 rounded-2xl bg-white dark:bg-surface-dark p-6 text-left shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-600 cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div class="tab-icon rounded-xl bg-slate-100 dark:bg-slate-700 p-3 text-slate-600 dark:text-slate-300 w-fit group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                <span class="material-symbols-outlined text-[28px]">assignment</span>
+            </div>
+            <span class="tab-check material-symbols-outlined text-primary text-[24px] hidden">check_circle</span>
         </div>
         <div>
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Exam Results</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Term &amp; Final Reports</p>
         </div>
-    </div>
+    </button>
 </div>
 
-<!-- Main Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Fee Collection Rate</p>
-        <h3 class="text-3xl font-bold text-slate-900 dark:text-white">@Model.CollectionRate%</h3>
-        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-3">
-            <div class="bg-primary h-1.5 rounded-full" style="width: @Model.CollectionRate%"></div>
+<!-- ═══════════════════════════════════════════════════════════════════
+     TAB 1 — Student Performance
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="panel-performance" class="tab-panel">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Average GPA</p>
+            <h3 class="text-3xl font-bold text-primary">@Model.AverageGpa</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Students</p>
+            <h3 class="text-3xl font-bold text-slate-900 dark:text-white">@Model.TotalStudents</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Passed</p>
+            <h3 class="text-3xl font-bold text-emerald-600">@Model.PassCount</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Failed</p>
+            <h3 class="text-3xl font-bold text-red-600">@Model.FailCount</h3>
         </div>
     </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Collected</p>
-        <h3 class="text-3xl font-bold text-emerald-600">&#x20B9;@Model.TotalFeeCollected.ToString("N0")</h3>
-    </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Overdue</p>
-        <h3 class="text-3xl font-bold text-red-600">&#x20B9;@Model.TotalFeeOverdue.ToString("N0")</h3>
-    </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-        <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Average GPA</p>
-        <h3 class="text-3xl font-bold text-primary">@Model.AverageGpa</h3>
-    </div>
-</div>
 
-<!-- Charts & GPA Distribution -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
-    <!-- Bar Chart Area (GPA Analysis) -->
-    <div class="lg:col-span-8 flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
-        <div class="flex items-center justify-between mb-8">
-            <div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+        <!-- GPA Distribution Bar Chart -->
+        <div class="lg:col-span-7 flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
+            <div class="mb-8">
                 <h3 class="text-xl font-bold text-slate-900 dark:text-white">GPA Distribution</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Performance across all students</p>
             </div>
-        </div>
-        <div class="flex-1 w-full flex items-end justify-around gap-4 px-4 pb-4" style="min-height: 250px;">
-            @foreach (var item in Model.GpaDistribution)
-            {
-                var maxCount = Model.GpaDistribution.Max(g => g.Count);
-                var heightPct = maxCount > 0 ? (int)((double)item.Count / maxCount * 100) : 10;
-                if (heightPct < 5) heightPct = 5;
-                <div class="group relative flex flex-col items-center gap-3 w-full max-w-[120px]">
-                    <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs font-bold py-1 px-2 rounded">@item.Count students</div>
-                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-2xl relative overflow-hidden" style="height: 200px;">
-                        <div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/80 to-primary/50 transition-all duration-500 rounded-t-2xl group-hover:brightness-110" style="height: @heightPct%"></div>
+            <div class="flex-1 w-full flex items-end justify-around gap-4 px-4 pb-4" style="min-height: 250px;">
+                @foreach (var item in Model.GpaDistribution)
+                {
+                    var maxCount = Model.GpaDistribution.Max(g => g.Count);
+                    var heightPct = maxCount > 0 ? (int)((double)item.Count / maxCount * 100) : 10;
+                    if (heightPct < 5) heightPct = 5;
+                    <div class="group relative flex flex-col items-center gap-3 w-full max-w-[120px]">
+                        <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-xs font-bold py-1 px-2 rounded">@item.Count students</div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-t-2xl relative overflow-hidden" style="height: 200px;">
+                            <div class="absolute bottom-0 w-full bg-gradient-to-t from-primary/80 to-primary/50 transition-all duration-500 rounded-t-2xl group-hover:brightness-110" style="height: @heightPct%"></div>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 text-center">@item.Range</span>
                     </div>
-                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 text-center">@item.Range</span>
-                </div>
-            }
+                }
+            </div>
+        </div>
+
+        <!-- Top Students -->
+        <div class="lg:col-span-5 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                <span class="material-symbols-outlined align-middle mr-1 text-amber-500">emoji_events</span> Top Students
+            </h3>
+            <div class="space-y-3 max-h-[360px] overflow-y-auto">
+                @{ var rank = 0; }
+                @foreach (var s in Model.TopStudents)
+                {
+                    rank++;
+                    var badgeColor = rank == 1 ? "bg-amber-100 text-amber-700" : rank == 2 ? "bg-slate-200 text-slate-700" : rank == 3 ? "bg-orange-100 text-orange-700" : "bg-slate-50 text-slate-600";
+                    <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <span class="@badgeColor text-xs font-black w-7 h-7 rounded-full flex items-center justify-center">#@rank</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-sm text-slate-900 dark:text-white truncate">@s.StudentName</p>
+                            <p class="text-xs text-slate-500">@s.ClassName &bull; Roll #@s.RollNumber</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-bold text-primary">@s.Gpa</span>
+                            <p class="text-xs text-slate-400">@s.Grade</p>
+                        </div>
+                    </div>
+                }
+                @if (!Model.TopStudents.Any())
+                {
+                    <p class="text-slate-400 text-sm text-center py-8">No marks data available yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TAB 2 — Fee Analytics
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="panel-fees" class="tab-panel hidden">
+    <!-- Fee Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Fee Collection Rate</p>
+            <h3 class="text-3xl font-bold text-slate-900 dark:text-white">@Model.CollectionRate%</h3>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mt-3">
+                <div class="bg-primary h-1.5 rounded-full" style="width: @Model.CollectionRate%"></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Collected</p>
+            <h3 class="text-3xl font-bold text-emerald-600">&#x20B9;@Model.TotalFeeCollected.ToString("N0")</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Overdue</p>
+            <h3 class="text-3xl font-bold text-red-600">&#x20B9;@Model.TotalFeeOverdue.ToString("N0")</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Payments</p>
+            <h3 class="text-3xl font-bold text-primary">@Model.TotalPayments</h3>
         </div>
     </div>
 
-    <!-- Attendance Side -->
-    <div class="lg:col-span-4 flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
-        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Overall Attendance</h3>
-        <div class="flex flex-col items-center gap-6 flex-1 justify-center">
-            <div class="relative h-32 w-32 flex items-center justify-center">
-                @{ var attPct = Model.OverallAttendanceRate; }
-                <svg class="w-full h-full transform -rotate-90">
-                    <circle class="text-slate-100 dark:text-slate-700" cx="64" cy="64" r="56" fill="transparent" stroke="currentColor" stroke-width="10"></circle>
-                    <circle class="text-emerald-500" cx="64" cy="64" r="56" fill="transparent" stroke="currentColor" stroke-dasharray="351.9" stroke-dashoffset="@(351.9 * (1 - (double)attPct / 100))" stroke-width="10" stroke-linecap="round"></circle>
-                </svg>
-                <span class="absolute text-2xl font-black text-emerald-600">@attPct%</span>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+        <!-- Fee Breakdown Table -->
+        <div class="lg:col-span-8 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Fee Head Breakdown</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-600">
+                            <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 uppercase">Fee Head</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Expected</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Collected</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Pending</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Due Date</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model.FeeBreakdown)
+                        {
+                            var rateColor = f.CollectionRate >= 80 ? "text-emerald-600" : f.CollectionRate >= 50 ? "text-amber-600" : "text-red-600";
+                            <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-semibold text-slate-900 dark:text-white">@f.FeeName</td>
+                                <td class="py-3 px-2 text-right text-slate-600 dark:text-slate-300">&#x20B9;@f.Amount.ToString("N0")</td>
+                                <td class="py-3 px-2 text-right text-emerald-600 font-semibold">&#x20B9;@f.Collected.ToString("N0")</td>
+                                <td class="py-3 px-2 text-right text-red-600 font-semibold">&#x20B9;@f.Pending.ToString("N0")</td>
+                                <td class="py-3 px-2 text-right text-slate-500">@f.DueDate</td>
+                                <td class="py-3 px-2 text-right font-bold @rateColor">@f.CollectionRate%</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t-2 border-slate-300 dark:border-slate-500 font-bold">
+                            <td class="py-3 px-2 text-slate-900 dark:text-white">Total</td>
+                            <td class="py-3 px-2 text-right text-slate-900 dark:text-white">&#x20B9;@Model.TotalFeeExpected.ToString("N0")</td>
+                            <td class="py-3 px-2 text-right text-emerald-600">&#x20B9;@Model.TotalFeeCollected.ToString("N0")</td>
+                            <td class="py-3 px-2 text-right text-red-600">&#x20B9;@Model.TotalFeeOverdue.ToString("N0")</td>
+                            <td class="py-3 px-2"></td>
+                            <td class="py-3 px-2 text-right text-primary">@Model.CollectionRate%</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-            <div class="grid grid-cols-2 gap-4 w-full">
-                <div class="text-center bg-emerald-50 p-3 rounded-lg">
-                    <p class="text-xs text-emerald-600 font-bold uppercase">Present</p>
-                    <p class="text-lg font-bold text-emerald-700">@Model.TotalPresentToday</p>
+        </div>
+
+        <!-- Paid vs Unpaid -->
+        <div class="lg:col-span-4 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Student Payment Status</h3>
+            <div class="flex flex-col items-center gap-6 flex-1 justify-center">
+                <div class="relative h-32 w-32 flex items-center justify-center">
+                    @{ var feePct = Model.CollectionRate; }
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle class="text-slate-100 dark:text-slate-700" cx="64" cy="64" r="56" fill="transparent" stroke="currentColor" stroke-width="10"></circle>
+                        <circle class="text-emerald-500" cx="64" cy="64" r="56" fill="transparent" stroke="currentColor" stroke-dasharray="351.9" stroke-dashoffset="@(351.9 * (1 - (double)feePct / 100))" stroke-width="10" stroke-linecap="round"></circle>
+                    </svg>
+                    <span class="absolute text-2xl font-black text-emerald-600">@feePct%</span>
                 </div>
-                <div class="text-center bg-red-50 p-3 rounded-lg">
-                    <p class="text-xs text-red-600 font-bold uppercase">Absent</p>
-                    <p class="text-lg font-bold text-red-700">@Model.TotalAbsentToday</p>
+                <div class="grid grid-cols-2 gap-4 w-full">
+                    <div class="text-center bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg">
+                        <p class="text-xs text-emerald-600 font-bold uppercase">Paid</p>
+                        <p class="text-lg font-bold text-emerald-700">@Model.PaidStudentCount</p>
+                    </div>
+                    <div class="text-center bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                        <p class="text-xs text-red-600 font-bold uppercase">Unpaid</p>
+                        <p class="text-lg font-bold text-red-700">@Model.UnpaidStudentCount</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- PDF Report Downloads -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     TAB 3 — Attendance Trends
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="panel-attendance" class="tab-panel hidden">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Overall Attendance</p>
+            <h3 class="text-3xl font-bold text-emerald-600">@Model.OverallAttendanceRate%</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Present Today</p>
+            <h3 class="text-3xl font-bold text-emerald-600">@Model.TotalPresentToday</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Absent Today</p>
+            <h3 class="text-3xl font-bold text-red-600">@Model.TotalAbsentToday</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Working Days</p>
+            <h3 class="text-3xl font-bold text-primary">@Model.TotalWorkingDays</h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+        <!-- Overall Donut -->
+        <div class="lg:col-span-4 flex flex-col bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Overall Attendance</h3>
+            <div class="flex flex-col items-center gap-6 flex-1 justify-center">
+                <div class="relative h-36 w-36 flex items-center justify-center">
+                    @{ var attPct = Model.OverallAttendanceRate; }
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle class="text-slate-100 dark:text-slate-700" cx="72" cy="72" r="60" fill="transparent" stroke="currentColor" stroke-width="12"></circle>
+                        <circle class="text-emerald-500" cx="72" cy="72" r="60" fill="transparent" stroke="currentColor" stroke-dasharray="376.9" stroke-dashoffset="@(376.9 * (1 - (double)attPct / 100))" stroke-width="12" stroke-linecap="round"></circle>
+                    </svg>
+                    <span class="absolute text-2xl font-black text-emerald-600">@attPct%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Per-Class Attendance Table -->
+        <div class="lg:col-span-8 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Class-wise Attendance (Latest Day)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-600">
+                            <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 uppercase">Class</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Students</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Present</th>
+                            <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Absent</th>
+                            <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.ClassAttendance)
+                        {
+                            var rateColor = c.AttendanceRate >= 90 ? "text-emerald-600" : c.AttendanceRate >= 75 ? "text-amber-600" : "text-red-600";
+                            <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="py-3 px-2 font-semibold text-slate-900 dark:text-white">@c.ClassName</td>
+                                <td class="py-3 px-2 text-center text-slate-600 dark:text-slate-300">@c.TotalStudents</td>
+                                <td class="py-3 px-2 text-center text-emerald-600 font-semibold">@c.PresentToday</td>
+                                <td class="py-3 px-2 text-center text-red-600 font-semibold">@c.AbsentToday</td>
+                                <td class="py-3 px-2 text-right font-bold @rateColor">@c.AttendanceRate%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.ClassAttendance.Any())
+            {
+                <p class="text-slate-400 text-sm text-center py-6">No attendance records found.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TAB 4 — Exam Results
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="panel-exams" class="tab-panel hidden">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Exams</p>
+            <h3 class="text-3xl font-bold text-primary">@Model.ExamResults.Count</h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Average Score</p>
+            <h3 class="text-3xl font-bold text-slate-900 dark:text-white">
+                @(Model.ExamResults.Any() ? Math.Round(Model.ExamResults.Average(e => e.Average), 1).ToString() : "0")
+            </h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Avg Pass Rate</p>
+            <h3 class="text-3xl font-bold text-emerald-600">
+                @(Model.ExamResults.Any() ? Math.Round(Model.ExamResults.Average(e => e.PassRate), 1).ToString() : "0")%
+            </h3>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Average GPA</p>
+            <h3 class="text-3xl font-bold text-primary">@Model.AverageGpa</h3>
+        </div>
+    </div>
+
+    <!-- Exam Results Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 mb-10">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Exam-wise Results</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200 dark:border-slate-600">
+                        <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 uppercase">Exam</th>
+                        <th class="text-left py-3 px-2 text-xs font-bold text-slate-500 uppercase">Course</th>
+                        <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Students</th>
+                        <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Total</th>
+                        <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Average</th>
+                        <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Highest</th>
+                        <th class="text-center py-3 px-2 text-xs font-bold text-slate-500 uppercase">Lowest</th>
+                        <th class="text-right py-3 px-2 text-xs font-bold text-slate-500 uppercase">Pass Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.ExamResults)
+                    {
+                        var rateColor = e.PassRate >= 80 ? "text-emerald-600" : e.PassRate >= 60 ? "text-amber-600" : "text-red-600";
+                        <tr class="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td class="py-3 px-2 font-semibold text-slate-900 dark:text-white">@e.ExamName</td>
+                            <td class="py-3 px-2 text-slate-600 dark:text-slate-300">@e.CourseName</td>
+                            <td class="py-3 px-2 text-center text-slate-600 dark:text-slate-300">@e.TotalStudents</td>
+                            <td class="py-3 px-2 text-center text-slate-600 dark:text-slate-300">@e.TotalMarks</td>
+                            <td class="py-3 px-2 text-center font-semibold text-primary">@e.Average</td>
+                            <td class="py-3 px-2 text-center font-semibold text-emerald-600">@e.Highest</td>
+                            <td class="py-3 px-2 text-center font-semibold text-red-600">@e.Lowest</td>
+                            <td class="py-3 px-2 text-right font-bold @rateColor">@e.PassRate%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.ExamResults.Any())
+        {
+            <p class="text-slate-400 text-sm text-center py-6">No exam results available yet.</p>
+        }
+    </div>
+</div>
+
+<!-- ═══ PDF Downloads (always visible) ═══ -->
 <div class="bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700">
     <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Download Reports (PDF)</h3>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Generate and download printable PDF reports for each class/exam.</p>
@@ -136,7 +402,7 @@
                 <span class="material-symbols-outlined">event_available</span>
             </div>
             <div>
-                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance &#8212; X-A</p>
+                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance Report</p>
                 <p class="text-xs text-slate-500 dark:text-slate-400">Current month PDF</p>
             </div>
         </a>
@@ -146,19 +412,49 @@
                 <span class="material-symbols-outlined">event_available</span>
             </div>
             <div>
-                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance &#8212; X-B</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Current month PDF</p>
+                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance Report</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Another class PDF</p>
             </div>
         </a>
-        <a asp-area="" asp-controller="ReportDownload" asp-action="AttendanceReport" asp-route-classSectionId="1" asp-route-month="7" asp-route-year="2024"
+        <a asp-area="" asp-controller="ReportDownload" asp-action="AttendanceReport" asp-route-classSectionId="1" asp-route-month="7" asp-route-year="2025"
            class="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-primary/30 hover:shadow-md transition-all group">
             <div class="size-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                 <span class="material-symbols-outlined">event_available</span>
             </div>
             <div>
-                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance &#8212; X-A (July 2024)</p>
+                <p class="font-bold text-sm text-slate-900 dark:text-white">Attendance (July 2025)</p>
                 <p class="text-xs text-slate-500 dark:text-slate-400">With seed data records</p>
             </div>
         </a>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    function switchTab(tabName) {
+        // Hide all panels
+        document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.add('hidden'); });
+        // Show selected panel
+        document.getElementById('panel-' + tabName).classList.remove('hidden');
+
+        // Reset all tab cards
+        document.querySelectorAll('.tab-card').forEach(function(card) {
+            card.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'dark:ring-offset-background-dark');
+            card.classList.add('border', 'border-transparent');
+            card.querySelector('.tab-check').classList.add('hidden');
+            var icon = card.querySelector('.tab-icon');
+            icon.classList.remove('bg-primary/10', 'text-primary');
+            icon.classList.add('bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+        });
+
+        // Activate selected tab card
+        var activeCard = document.getElementById('tab-' + tabName);
+        activeCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'dark:ring-offset-background-dark');
+        activeCard.classList.remove('border', 'border-transparent');
+        activeCard.querySelector('.tab-check').classList.remove('hidden');
+        var activeIcon = activeCard.querySelector('.tab-icon');
+        activeIcon.classList.add('bg-primary/10', 'text-primary');
+        activeIcon.classList.remove('bg-slate-100', 'dark:bg-slate-700', 'text-slate-600', 'dark:text-slate-300');
+    }
+</script>
+}

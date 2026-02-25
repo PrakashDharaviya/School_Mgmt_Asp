@@ -245,6 +245,7 @@ namespace SchoolEduERP.App_Data
                     GuardianPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     AdmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -276,6 +277,7 @@ namespace SchoolEduERP.App_Data
                     Qualification = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     JoiningDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -315,7 +317,8 @@ namespace SchoolEduERP.App_Data
                         name: "FK_AttendanceRecords_ClassSections_ClassSectionId",
                         column: x => x.ClassSectionId,
                         principalTable: "ClassSections",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_AttendanceRecords_Students_StudentId",
                         column: x => x.StudentId,
@@ -659,9 +662,16 @@ namespace SchoolEduERP.App_Data
                 column: "ClassSectionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AttendanceRecords_StudentId_Date",
+                name: "IX_AttendanceRecords_StudentId_ClassSectionId_Date",
                 table: "AttendanceRecords",
-                columns: new[] { "StudentId", "Date" },
+                columns: new[] { "StudentId", "ClassSectionId", "Date" },
+                unique: true,
+                filter: "[ClassSectionId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassSections_ClassName_Section",
+                table: "ClassSections",
+                columns: new[] { "ClassName", "Section" },
                 unique: true);
 
             migrationBuilder.CreateIndex(

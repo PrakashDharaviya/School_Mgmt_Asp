@@ -55,7 +55,7 @@ public class DashboardController : Controller
                 .Where(p => p.Status == "Completed")
                 .SumAsync(p => p.AmountPaid),
             FeeOverdue = await GetOverdueFeeAmountAsync(activeYear),
-            TodayClasses = await _context.ClassSections.CountAsync(),
+            TodayClasses = await _context.AttendanceRecords.Where(a => a.Date.Date == DateTime.Today).Select(a => a.ClassSectionId).Distinct().CountAsync(),
             TotalClasses = await _context.ClassSections.CountAsync(),
             ActiveAcademicYear = activeYear?.Name ?? "N/A",
             UserRole = role,
@@ -119,9 +119,20 @@ public class DashboardController : Controller
         decimal totalOverdue = 0;
         foreach (var fee in overdueFees)
         {
-            // Count enrolled students for this year
-            var enrolledCount = await _context.Enrollments
-                .CountAsync(e => e.AcademicYearId == activeYear.Id && e.IsActive);
+            // Count enrolled students filtered by ApplicableClass if specified
+            int enrolledCount;
+            if (!string.IsNullOrWhiteSpace(fee.ApplicableClass))
+            {
+                enrolledCount = await _context.Enrollments
+                    .Include(e => e.ClassSection)
+                    .CountAsync(e => e.AcademicYearId == activeYear.Id && e.IsActive
+                        && e.ClassSection.ClassName == fee.ApplicableClass);
+            }
+            else
+            {
+                enrolledCount = await _context.Enrollments
+                    .CountAsync(e => e.AcademicYearId == activeYear.Id && e.IsActive);
+            }
             var totalExpected = fee.Amount * enrolledCount;
             var totalPaid = await _context.FeePayments
                 .Where(p => p.FeeHeadId == fee.Id && p.Status == "Completed")

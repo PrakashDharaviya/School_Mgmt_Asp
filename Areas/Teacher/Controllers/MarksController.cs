@@ -44,12 +44,14 @@ public class MarksController : Controller
         List<EnrolledStudentDto> enrolledStudents;
         if (activeYear != null)
         {
-            enrolledStudents = await _context.Enrollments
+            var enrollments = await _context.Enrollments
                 .Include(e => e.Student)
-                .Where(e => e.AcademicYearId == activeYear.Id && e.IsActive)
-                .Select(e => new EnrolledStudentDto(e.Student, e.RollNumber))
-                .Distinct()
+                .Where(e => e.AcademicYearId == activeYear.Id && e.IsActive && e.CourseId == selectedCourseId)
                 .ToListAsync();
+            enrolledStudents = enrollments
+                .GroupBy(e => e.StudentId)
+                .Select(g => new EnrolledStudentDto(g.First().Student, g.First().RollNumber))
+                .ToList();
         }
         else
         {

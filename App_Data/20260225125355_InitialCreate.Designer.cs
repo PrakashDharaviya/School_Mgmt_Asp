@@ -12,7 +12,7 @@ using SchoolEduERP.Data;
 namespace SchoolEduERP.App_Data
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260223124820_InitialCreate")]
+    [Migration("20260225125355_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -324,8 +324,9 @@ namespace SchoolEduERP.App_Data
 
                     b.HasIndex("ClassSectionId");
 
-                    b.HasIndex("StudentId", "Date")
-                        .IsUnique();
+                    b.HasIndex("StudentId", "ClassSectionId", "Date")
+                        .IsUnique()
+                        .HasFilter("[ClassSectionId] IS NOT NULL");
 
                     b.ToTable("AttendanceRecords");
                 });
@@ -366,6 +367,9 @@ namespace SchoolEduERP.App_Data
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClassName", "Section")
+                        .IsUnique();
 
                     b.ToTable("ClassSections");
                 });
@@ -892,6 +896,10 @@ namespace SchoolEduERP.App_Data
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Password")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -1005,6 +1013,10 @@ namespace SchoolEduERP.App_Data
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Password")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -1092,7 +1104,8 @@ namespace SchoolEduERP.App_Data
                 {
                     b.HasOne("SchoolEduERP.Models.Domain.ClassSection", "ClassSection")
                         .WithMany()
-                        .HasForeignKey("ClassSectionId");
+                        .HasForeignKey("ClassSectionId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("SchoolEduERP.Models.Domain.Student", "Student")
                         .WithMany("AttendanceRecords")

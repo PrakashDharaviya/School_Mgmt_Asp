@@ -64,6 +64,13 @@ public class AttendanceController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(AttendanceViewModel model)
     {
+        // Guard: do not delete existing records if no students were posted
+        if (model.Students == null || model.Students.Count == 0)
+        {
+            TempData["Error"] = "No student data received. Attendance was not saved.";
+            return RedirectToAction(nameof(Index), new { classSectionId = model.ClassSectionId, date = model.Date.ToString("yyyy-MM-dd") });
+        }
+
         // Remove existing records for this class/date
         var existing = await _context.AttendanceRecords
             .Where(a => a.ClassSectionId == model.ClassSectionId && a.Date.Date == model.Date.Date)

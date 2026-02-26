@@ -100,6 +100,7 @@ public class ReportViewModel
     public int TotalStudents { get; set; }
     public int PassCount { get; set; }
     public int FailCount { get; set; }
+    public int NotEvaluatedCount { get; set; }
     public decimal HighestGpa { get; set; }
     public decimal LowestGpa { get; set; }
     public List<TopStudentItem> TopStudents { get; set; } = new();

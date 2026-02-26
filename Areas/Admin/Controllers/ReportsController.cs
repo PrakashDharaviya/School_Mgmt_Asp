@@ -174,6 +174,17 @@ public class ReportsController : Controller
 
         var passCount = studentGpas.Count(s => s.AvgGpa >= 1.5m);
         var failCount = studentGpas.Count(s => s.AvgGpa < 1.5m);
+        var notEvaluatedCount = activeStudentCount - passCount - failCount;
+
+        // ── Backend Validation: Total = Passed + Failed + Not Evaluated ──
+        if (passCount + failCount + notEvaluatedCount != activeStudentCount)
+        {
+            var logger = HttpContext.RequestServices.GetService<ILogger<ReportsController>>();
+            logger?.LogError(
+                "Student count mismatch! Total={Total}, Passed={Passed}, Failed={Failed}, NotEvaluated={NotEvaluated}. " +
+                "Expected: Passed + Failed + NotEvaluated = Total.",
+                activeStudentCount, passCount, failCount, notEvaluatedCount);
+        }
 
         // ── Exam Results ──────────────────────────────────────────
         var exams = await _context.Exams.Include(e => e.Course).ToListAsync();
@@ -207,7 +218,7 @@ public class ReportsController : Controller
             OverallAttendanceRate = overallRate,
             TotalPresentToday = todayPresent,
             TotalAbsentToday = todayAbsent,
-            AverageGpa = allMarks.Any() ? Math.Round(allMarks.Average(m => m.GradePoint!.Value), 2) : 0,
+            AverageGpa = studentGpas.Any() ? Math.Round(studentGpas.Average(s => s.AvgGpa), 2) : 0,
             GpaDistribution = gpaDistribution,
             ActiveAcademicYear = activeYear?.Name ?? "N/A",
 
@@ -215,6 +226,7 @@ public class ReportsController : Controller
             TotalStudents = activeStudentCount,
             PassCount = passCount,
             FailCount = failCount,
+            NotEvaluatedCount = notEvaluatedCount,
             HighestGpa = studentGpas.Any() ? studentGpas.Max(s => s.AvgGpa) : 0,
             LowestGpa = studentGpas.Any() ? studentGpas.Min(s => s.AvgGpa) : 0,
             TopStudents = topStudents,

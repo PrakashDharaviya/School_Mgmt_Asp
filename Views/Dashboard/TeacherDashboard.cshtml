@@ -48,8 +48,8 @@
         <div class="flex justify-between items-center">
             <h2 class="text-2xl font-bold tracking-tight">Quick Actions</h2>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a asp-area="Teacher" asp-controller="Attendance" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-primary flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+        <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <a asp-area="Teacher" asp-controller="Attendance" asp-action="Index" class="quick-action-card bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border-l-4 border-l-primary flex flex-col justify-between min-h-[200px]">
                 <span class="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded w-fit">Attendance</span>
                 <div>
                     <h3 class="font-bold text-lg dark:text-white">Mark Attendance</h3>
@@ -57,7 +57,7 @@
                 </div>
                 <div class="pt-3 border-t border-slate-50 dark:border-slate-700"><p class="text-xs text-slate-400">Daily task</p></div>
             </a>
-            <a asp-area="Teacher" asp-controller="Marks" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-purple-500 flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+            <a asp-area="Teacher" asp-controller="Marks" asp-action="Index" class="quick-action-card bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border-l-4 border-l-purple-500 flex flex-col justify-between min-h-[200px]">
                 <span class="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded w-fit">Marks</span>
                 <div>
                     <h3 class="font-bold text-lg dark:text-white">Enter Marks</h3>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="pt-3 border-t border-slate-50 dark:border-slate-700"><p class="text-xs text-slate-400">Auto GPA calculation</p></div>
             </a>
-            <a asp-area="Teacher" asp-controller="Exam" asp-action="Index" class="bg-white dark:bg-surface-dark p-5 rounded-xl shadow-sm border-l-4 border-l-blue-400 flex flex-col justify-between h-48 hover:shadow-md transition-shadow">
+            <a asp-area="Teacher" asp-controller="Exam" asp-action="Index" class="quick-action-card bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border-l-4 border-l-blue-400 flex flex-col justify-between min-h-[200px]">
                 <span class="text-xs font-bold text-blue-500 bg-blue-100 px-2 py-1 rounded w-fit">Exams</span>
                 <div>
                     <h3 class="font-bold text-lg dark:text-white">Manage Exams</h3>

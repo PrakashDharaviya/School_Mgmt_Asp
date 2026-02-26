@@ -283,3 +283,24 @@ body {
     display: block !important;
     opacity: 1 !important;
 }
+
+/* ===== QUICK ACTION CARDS ===== */
+.quick-action-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+}
+.quick-action-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+.dark .quick-action-card:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== PROFILE PAGE ===== */
+.profile-avatar-wrapper {
+    transition: transform 0.2s ease;
+}
+.profile-avatar-wrapper:hover {
+    transform: scale(1.05);
+}

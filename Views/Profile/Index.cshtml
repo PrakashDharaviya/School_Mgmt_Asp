@@ -1,0 +1,285 @@
+@model ProfilePageViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    var isTeacher = Model.Profile.Role == "Teacher";
+    var isStudent = Model.Profile.Role == "Student";
+}
+
+<header class="flex flex-wrap justify-between items-end gap-4 mb-8">
+    <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white">My Profile</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-2 font-medium">Manage your personal information and security settings</p>
+    </div>
+    <a asp-controller="Dashboard" asp-action="Index" class="text-primary dark:text-blue-400 font-semibold text-sm flex items-center gap-1 hover:underline">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Dashboard
+    </a>
+</header>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+    <!-- Profile Summary Card (Left Column) -->
+    <div class="xl:col-span-1">
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden">
+            <div class="bg-gradient-to-br from-primary to-blue-600 h-28 relative">
+                <div class="absolute -bottom-12 left-1/2 -translate-x-1/2">
+                    <div class="profile-avatar-wrapper relative">
+                        @if (Model.Profile.ProfilePhotoPath != null)
+                        {
+                            <img src="@Model.Profile.ProfilePhotoPath" alt="Profile" class="w-24 h-24 rounded-full border-4 border-white dark:border-surface-dark object-cover shadow-lg" />
+                        }
+                        else
+                        {
+                            <div class="w-24 h-24 rounded-full border-4 border-white dark:border-surface-dark bg-primary/10 dark:bg-blue-500/20 flex items-center justify-center text-primary dark:text-blue-400 text-3xl font-bold shadow-lg">
+                                @(Model.Profile.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="pt-16 pb-6 px-6 text-center">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">@Model.Profile.FullName</h2>
+                <span class="inline-block mt-2 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full
+                    @(isTeacher ? "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-500/20" : "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/20")">
+                    @Model.Profile.Role
+                </span>
+                <div class="mt-5 space-y-3 text-left">
+                    <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                        <span class="material-symbols-outlined text-base text-slate-400">email</span>
+                        <span class="truncate">@Model.Profile.Email</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Profile.Phone))
+                    {
+                        <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                            <span class="material-symbols-outlined text-base text-slate-400">phone</span>
+                            <span>@Model.Profile.Phone</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Profile.EmployeeIdOrAdmission))
+                    {
+                        <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                            <span class="material-symbols-outlined text-base text-slate-400">badge</span>
+                            <span>@(isTeacher ? "Employee ID" : "Admission No"): <strong class="text-slate-900 dark:text-white">@Model.Profile.EmployeeIdOrAdmission</strong></span>
+                        </div>
+                    }
+                    @if (Model.Profile.JoiningDate.HasValue)
+                    {
+                        <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                            <span class="material-symbols-outlined text-base text-slate-400">calendar_today</span>
+                            <span>@(isTeacher ? "Joined" : "Admitted"): <strong class="text-slate-900 dark:text-white">@Model.Profile.JoiningDate.Value.ToString("dd MMM yyyy")</strong></span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Edit Profile + Change Password -->
+    <div class="xl:col-span-2 space-y-6">
+
+        <!-- Personal Information Card -->
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 dark:bg-blue-500/20 flex items-center justify-center text-primary dark:text-blue-400">
+                        <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Personal Information</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Update your personal details</p>
+                    </div>
+                </div>
+            </div>
+            <form asp-action="UpdateProfile" asp-controller="Profile" method="post" enctype="multipart/form-data" class="p-6">
+                @Html.AntiForgeryToken()
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label asp-for="Profile.FullName" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">person</span>
+                            <input asp-for="Profile.FullName" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="Enter your full name" />
+                        </div>
+                        <span asp-validation-for="Profile.FullName" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label asp-for="Profile.Email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">email</span>
+                            <input asp-for="Profile.Email" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="your@email.com" />
+                        </div>
+                        <span asp-validation-for="Profile.Email" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label asp-for="Profile.Phone" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">phone</span>
+                            <input asp-for="Profile.Phone" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="Enter phone number" />
+                        </div>
+                        <span asp-validation-for="Profile.Phone" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label asp-for="Profile.Address" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-lg">home</span>
+                            <textarea asp-for="Profile.Address" rows="3" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm resize-none" placeholder="Enter your address"></textarea>
+                        </div>
+                        <span asp-validation-for="Profile.Address" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Profile Photo Upload -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Profile Photo</label>
+                        <div class="flex items-center gap-4">
+                            <div id="photoPreview" class="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-surface-dark-hover flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-600">
+                                @if (Model.Profile.ProfilePhotoPath != null)
+                                {
+                                    <img src="@Model.Profile.ProfilePhotoPath" alt="Profile" class="w-full h-full object-cover" id="previewImg" />
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined text-slate-400 text-2xl" id="previewIcon">add_a_photo</span>
+                                    <img src="" alt="Preview" class="w-full h-full object-cover hidden" id="previewImg" />
+                                }
+                            </div>
+                            <div class="flex-1">
+                                <label for="profilePhoto" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-surface-dark-hover text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-medium">
+                                    <span class="material-symbols-outlined text-base">upload</span>
+                                    Choose Photo
+                                </label>
+                                <input type="file" id="profilePhoto" name="profilePhoto" accept="image/*" class="hidden" onchange="previewProfilePhoto(this)" />
+                                <p class="text-xs text-slate-400 mt-1">JPG, PNG, GIF or WebP. Max 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" asp-for="Profile.Role" />
+
+                <div class="flex justify-end mt-6 pt-5 border-t border-slate-100 dark:border-slate-700/50">
+                    <button type="submit" class="bg-primary dark:bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 dark:hover:bg-blue-500 transition-all text-sm shadow-sm hover:shadow-md">
+                        <span class="material-symbols-outlined text-base">save</span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-slate-100 dark:border-slate-700/50">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                        <span class="material-symbols-outlined">lock</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Change Password</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Ensure your account is secure</p>
+                    </div>
+                </div>
+            </div>
+            <form asp-action="ChangePassword" asp-controller="Profile" method="post" class="p-6">
+                @Html.AntiForgeryToken()
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Old Password -->
+                    <div class="md:col-span-2">
+                        <label asp-for="ChangePassword.OldPassword" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">key</span>
+                            <input asp-for="ChangePassword.OldPassword" class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="Enter current password" />
+                            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility_off</span>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ChangePassword.OldPassword" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- New Password -->
+                    <div>
+                        <label asp-for="ChangePassword.NewPassword" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
+                            <input asp-for="ChangePassword.NewPassword" class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="Enter new password" />
+                            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility_off</span>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ChangePassword.NewPassword" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label asp-for="ChangePassword.ConfirmPassword" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5"></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock_reset</span>
+                            <input asp-for="ChangePassword.ConfirmPassword" class="w-full pl-10 pr-12 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-surface-dark text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm" placeholder="Confirm new password" />
+                            <button type="button" onclick="togglePassword(this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility_off</span>
+                            </button>
+                        </div>
+                        <span asp-validation-for="ChangePassword.ConfirmPassword" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Password Requirements -->
+                <div class="mt-4 p-4 bg-slate-50 dark:bg-surface-dark-hover rounded-xl">
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password Requirements</p>
+                    <ul class="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> Minimum 6 characters</li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> At least one uppercase letter</li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> At least one digit</li>
+                        <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">check_circle</span> At least one special character</li>
+                    </ul>
+                </div>
+
+                <div class="flex justify-end mt-6 pt-5 border-t border-slate-100 dark:border-slate-700/50">
+                    <button type="submit" class="bg-amber-500 dark:bg-amber-600 text-white px-6 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-amber-600 dark:hover:bg-amber-500 transition-all text-sm shadow-sm hover:shadow-md">
+                        <span class="material-symbols-outlined text-base">lock_reset</span>
+                        Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Profile photo preview
+        function previewProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var previewImg = document.getElementById('previewImg');
+                    var previewIcon = document.getElementById('previewIcon');
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    if (previewIcon) previewIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword(btn) {
+            var input = btn.parentElement.querySelector('input');
+            var icon = btn.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility_off';
+            }
+        }
+    </script>
+}

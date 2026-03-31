@@ -17,6 +17,8 @@ public class PdfReportService : IPdfReportService
 {
     public byte[] GenerateStudentReportCard(StudentReportData data)
     {
+        var generatedAt = DateTime.Now;
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -37,7 +39,7 @@ public class PdfReportService : IPdfReportService
                         });
                         row.ConstantItem(120).AlignRight().Column(c =>
                         {
-                            c.Item().Text($"Date: {DateTime.Now:dd-MMM-yyyy}").FontSize(9);
+                            c.Item().Text($"Date: {generatedAt:dd-MMM-yyyy HH:mm}").FontSize(9);
                             c.Item().Text($"Admission No: {data.AdmissionNumber}").FontSize(9).Bold();
                         });
                     });
@@ -116,7 +118,7 @@ public class PdfReportService : IPdfReportService
                 page.Footer().AlignCenter().Text(t =>
                 {
                     t.Span("School ERP © 2025 | Generated on ");
-                    t.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm")).Bold();
+                    t.Span(generatedAt.ToString("dd-MMM-yyyy HH:mm")).Bold();
                     t.Span(" | Page ");
                     t.CurrentPageNumber();
                     t.Span(" of ");
@@ -130,6 +132,8 @@ public class PdfReportService : IPdfReportService
 
     public byte[] GenerateFeeReceipt(FeeReceiptData data)
     {
+        var generatedAt = DateTime.Now;
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -150,7 +154,8 @@ public class PdfReportService : IPdfReportService
                         row.ConstantItem(140).AlignRight().Column(c =>
                         {
                             c.Item().Text($"Receipt No: {data.ReceiptNumber}").FontSize(9).Bold();
-                            c.Item().Text($"Date: {data.PaymentDate:dd-MMM-yyyy}").FontSize(9);
+                            c.Item().Text($"Payment Date: {data.PaymentDate:dd-MMM-yyyy}").FontSize(9);
+                            c.Item().Text($"Generated: {generatedAt:dd-MMM-yyyy HH:mm}").FontSize(9);
                         });
                     });
                     col.Item().PaddingVertical(6).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
@@ -203,6 +208,12 @@ public class PdfReportService : IPdfReportService
 
                     col.Item().PaddingTop(20).AlignCenter().Text("This is a computer-generated receipt.").FontSize(8).FontColor(Colors.Grey.Medium);
                 });
+
+                page.Footer().AlignCenter().Text(t =>
+                {
+                    t.Span("Generated on ").FontSize(8);
+                    t.Span(generatedAt.ToString("dd-MMM-yyyy HH:mm")).Bold().FontSize(8);
+                });
             });
         });
 
@@ -211,6 +222,8 @@ public class PdfReportService : IPdfReportService
 
     public byte[] GenerateAttendanceReport(AttendanceReportData data)
     {
+        var generatedAt = DateTime.Now;
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -277,7 +290,7 @@ public class PdfReportService : IPdfReportService
                 page.Footer().AlignCenter().Text(t =>
                 {
                     t.Span("Generated on ").FontSize(8);
-                    t.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm")).Bold().FontSize(8);
+                    t.Span(generatedAt.ToString("dd-MMM-yyyy HH:mm")).Bold().FontSize(8);
                 });
             });
         });
@@ -287,6 +300,8 @@ public class PdfReportService : IPdfReportService
 
     public byte[] GenerateClassResultReport(ClassResultData data)
     {
+        var generatedAt = DateTime.Now;
+
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -362,7 +377,7 @@ public class PdfReportService : IPdfReportService
                 page.Footer().AlignCenter().Text(t =>
                 {
                     t.Span("Generated on ").FontSize(8);
-                    t.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm")).Bold().FontSize(8);
+                    t.Span(generatedAt.ToString("dd-MMM-yyyy HH:mm")).Bold().FontSize(8);
                     t.Span(" | Page ");
                     t.CurrentPageNumber();
                 });

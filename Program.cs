@@ -98,6 +98,8 @@ using (var scope = app.Services.CreateScope())
             var res = await userManager.CreateAsync(admin, "Admin@123");
             if (res.Succeeded) await userManager.AddToRoleAsync(admin, "Admin");
         }
+
+        // 3. No startup sample data seeding
     }
     catch (Exception ex)
     {

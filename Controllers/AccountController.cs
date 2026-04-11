@@ -33,8 +33,11 @@ public class AccountController : Controller
         if (User.Identity?.IsAuthenticated ?? false)
             return RedirectToAction("Index", "Dashboard");
 
+        // Clear any existing model state so the fields will be empty
+        ModelState.Clear();
+
         ViewData["ReturnUrl"] = returnUrl;
-        return View();
+        return View(new LoginViewModel { Email = "", Password = "" });
     }
 
     [HttpPost]

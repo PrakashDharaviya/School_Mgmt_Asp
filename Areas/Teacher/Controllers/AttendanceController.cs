@@ -67,6 +67,10 @@ public class AttendanceController : Controller
         // Guard: do not delete existing records if no students were posted
         if (model.Students == null || model.Students.Count == 0)
         {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = false, message = "No student data received. Attendance was not saved." });
+            }
             TempData["Error"] = "No student data received. Attendance was not saved.";
             return RedirectToAction(nameof(Index), new { classSectionId = model.ClassSectionId, date = model.Date.ToString("yyyy-MM-dd") });
         }
@@ -90,6 +94,12 @@ public class AttendanceController : Controller
         }
 
         await _context.SaveChangesAsync();
+        
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return Json(new { success = true, message = "Attendance saved successfully!" });
+        }
+
         TempData["Success"] = "Attendance saved successfully!";
         return RedirectToAction(nameof(Index), new { classSectionId = model.ClassSectionId, date = model.Date.ToString("yyyy-MM-dd") });
     }

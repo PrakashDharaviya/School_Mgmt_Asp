@@ -32,7 +32,7 @@
         </form>
 
         <!-- Student List -->
-        <form asp-action="Save" method="post">
+        <form id="attendanceForm" asp-action="Save" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ClassSectionId" />
             <input type="hidden" name="Date" value="@Model.Date.ToString("yyyy-MM-dd")" />
@@ -198,5 +198,59 @@
             }
         });
         updateStats();
+    });
+
+    // Handle AJAX Form Submission
+    document.getElementById('attendanceForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Stop normal form submission
+
+        var submitBtn = this.querySelector('button[type="submit"]');
+        var originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Saving...';
+
+        var formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+
+            if (data.success) {
+                // Show success toast/alert
+                var alertHtml = '<div class="alert-auto-dismiss mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 transition-opacity duration-500">' +
+                    '<span class="material-symbols-outlined">check_circle</span>' +
+                    '<div><p class="font-bold text-sm">Success</p><p class="text-xs opacity-90">' + data.message + '</p></div>' +
+                    '</div>';
+                this.insertAdjacentHTML('beforebegin', alertHtml);
+
+                // Auto dismiss toast logic
+                setTimeout(function() {
+                    var alerts = document.querySelectorAll('.alert-auto-dismiss');
+                    alerts.forEach(a => {
+                        a.style.opacity = '0';
+                        setTimeout(() => a.remove(), 500);
+                    });
+                }, 3000);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            alert('An error occurred while saving attendance.');
+            console.error('Error:', error);
+        });
     });
 </script>

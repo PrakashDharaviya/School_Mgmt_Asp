@@ -85,12 +85,13 @@
                                    class="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
                                     <span class="material-symbols-outlined text-[16px]">edit</span> Edit
                                 </a>
-                                <form asp-action="Delete" method="post" class="inline"
-                                      onsubmit="return confirm('Delete subject &quot;@s.Name&quot;?');">
+                                <form asp-action="Delete" method="post" class="inline delete-subject-form" 
+                                      data-id="@s.Id" 
+                                      onsubmit="return false;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@s.Id" />
                                     <button type="submit"
-                                            class="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                                            class="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors delete-btn">
                                         <span class="material-symbols-outlined text-[16px]">delete</span> Delete
                                     </button>
                                 </form>
@@ -112,3 +113,70 @@
     </div>
     @await Html.PartialAsync("_Pagination", Model)
 </div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.delete-subject-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop normal form submission
+            
+            if (!confirm('Are you sure you want to delete this subject?')) {
+                return;
+            }
+
+            var submitBtn = this.querySelector('.delete-btn');
+            var originalHtml = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span>...';
+
+            var formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var row = this.closest('tr');
+                    
+                    // Show dynamic success toast/alert
+                    var alertHtml = '<div class="alert-auto-dismiss mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 flex items-center gap-3 transition-opacity duration-500">' +
+                        '<span class="material-symbols-outlined">delete</span>' +
+                        '<div><p class="font-bold text-sm">Deleted</p><p class="text-xs opacity-90">' + data.message + '</p></div>' +
+                        '</div>';
+                    
+                    document.querySelector('.overflow-hidden').insertAdjacentHTML('beforebegin', alertHtml);
+
+                    // Fade out row and remove
+                    row.style.transition = "opacity 0.3s ease";
+                    row.style.opacity = 0;
+                    setTimeout(function() { row.remove(); }, 300);
+
+                    // Auto dismiss toast
+                    setTimeout(function() {
+                        document.querySelectorAll('.alert-auto-dismiss').forEach(a => {
+                            a.style.opacity = '0';
+                            setTimeout(() => a.remove(), 500);
+                        });
+                    }, 3000);
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+                alert('An error occurred while deleting the subject.');
+            });
+        });
+    });
+</script>
+}

@@ -87,11 +87,12 @@
                                     <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">@e.AcademicYearName</td>
                                     <td class="px-6 py-4 text-sm text-slate-500">@(e.CourseName ?? "—")</td>
                                     <td class="px-6 py-4 text-right">
-                                        <form asp-action="Remove" method="post" class="inline">
+                                        <form asp-action="Remove" method="post" class="inline remove-enrollment-form" 
+                                              data-id="@e.Id" onsubmit="return false;">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@e.Id" />
-                                            <button type="submit" onclick="return confirm('Remove enrollment?')"
-                                                    class="text-xs font-semibold text-red-600 hover:underline">Remove</button>
+                                            <button type="submit"
+                                                    class="text-xs font-semibold text-red-600 hover:underline remove-btn">Remove</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -109,4 +110,72 @@ else
         <span class="material-symbols-outlined text-5xl mb-2">group_off</span>
         <p>No enrollments found.</p>
     </div>
+}
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.remove-enrollment-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop full page reload
+            
+            if (!confirm('Are you sure you want to remove this enrollment?')) {
+                return;
+            }
+
+            var submitBtn = this.querySelector('.remove-btn');
+            var originalHtml = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Removing...';
+
+            var formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    var row = this.closest('tr');
+                    var container = this.closest('.bg-white'); // The table container
+                    
+                    // Show dynamic success toast/alert
+                    var alertHtml = '<div class="alert-auto-dismiss mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 transition-opacity duration-500">' +
+                        '<span class="material-symbols-outlined text-emerald-600 !text-xl">check_circle</span>' +
+                        '<div><p class="font-bold text-sm text-emerald-900">Success</p><p class="text-xs text-emerald-700">' + data.message + '</p></div>' +
+                        '</div>';
+                    
+                    container.insertAdjacentHTML('beforebegin', alertHtml);
+
+                    // Fade out row and remove instantly
+                    row.style.transition = "opacity 0.3s ease";
+                    row.style.opacity = 0;
+                    setTimeout(function() { row.remove(); }, 300);
+
+                    // Auto dismiss toast
+                    setTimeout(function() {
+                        document.querySelectorAll('.alert-auto-dismiss').forEach(a => {
+                            a.style.opacity = '0';
+                            setTimeout(() => a.remove(), 500);
+                        });
+                    }, 3000);
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+                alert('An error occurred while removing the enrollment.');
+            });
+        });
+    });
+</script>
 }

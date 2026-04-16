@@ -132,9 +132,19 @@ public class EnrollmentController : Controller
     public async Task<IActionResult> Remove(int id)
     {
         var enrollment = await _context.Enrollments.FindAsync(id);
-        if (enrollment == null) return NotFound();
+        if (enrollment == null) 
+        {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(new { success = false, message = "Enrollment not found." });
+            return NotFound();
+        }
+        
         enrollment.IsActive = false;
         await _context.SaveChangesAsync();
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            return Json(new { success = true, message = "Enrollment removed successfully." });
+
         TempData["Success"] = "Enrollment removed.";
         return RedirectToAction(nameof(Index));
     }

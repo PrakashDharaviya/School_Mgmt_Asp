@@ -100,9 +100,19 @@ public class SubjectController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var subj = await _context.Subjects.FindAsync(id);
-        if (subj == null) return NotFound();
+        if (subj == null) 
+        {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(new { success = false, message = "Subject not found." });
+            return NotFound();
+        }
+        
         _context.Subjects.Remove(subj);
         await _context.SaveChangesAsync();
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            return Json(new { success = true, message = "Subject deleted successfully." });
+
         TempData["Success"] = "Subject deleted.";
         return RedirectToAction(nameof(Index));
     }
